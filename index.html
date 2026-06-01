@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHOW3D: Capturing Scenes of 3D Hands and Objects in the Wild</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-s:    #107cf1;
+      --color-h:    #36ab42;
+      --color-o:    #f7af64;
+      --color-w:    #ee6d63;
+      --color-3d:   #8e7cbd;
+      --color-dark: #1e1e1e;
+    }
+
+    body {
+      font-family: 'Avenir Next', 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: var(--color-dark);
+      background: #fff;
+    }
+
+    /* ── Title color spans ── */
+    .c-s  { color: var(--color-s); }
+    .c-h  { color: var(--color-h); }
+    .c-o  { color: var(--color-o); }
+    .c-w  { color: var(--color-w); }
+    .c-3d { color: var(--color-3d); }
+
+    /* ── Hero ── */
+    .hero-section {
+      background: #fff;
+      padding: 3.5rem 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .paper-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Venue badge ── */
+    .venue-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #1a3a5c 0%, #2563a8 100%);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 0.35em 1.1em;
+      border-radius: 30px;
+      margin-bottom: 1.8rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Authors ── */
+    .authors {
+      font-size: 1.05rem;
+      margin-bottom: 0.4rem;
+      line-height: 1.8;
+      font-weight: 400;
+    }
+
+    .affiliations {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 2rem;
+    }
+
+    /* ── Link buttons ── */
+    .link-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5em;
+      padding: 0.55em 1.4em;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .link-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+
+    .btn-arxiv { background: #b31b1b; color: #fff; }
+    .btn-data  { background: #ff9a00; color: #fff; }
+
+    /* ── Layout ── */
+    .section-paper {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      color: var(--color-dark);
+    }
+
+    .subsection-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 2rem 0 0.8rem;
+      color: var(--color-dark);
+    }
+
+    hr.section-rule {
+      border: none;
+      border-top: 1px solid #eee;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── Abstract ── */
+    .abstract-text {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #333;
+      text-align: justify;
+    }
+
+    /* ── Figures ── */
+    .figure-container {
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    .figure-container img {
+      max-width: 100%;
+      border-radius: 6px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.08);
+    }
+
+    .figure-caption {
+      font-size: 0.875rem;
+      color: #555;
+      margin-top: 0.8rem;
+      text-align: left;
+      line-height: 1.6;
+    }
+
+    .figure-caption strong { color: #222; }
+
+    /* ── Two-column grid ── */
+    .fig-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    @media (max-width: 640px) {
+      .fig-row        { grid-template-columns: 1fr; }
+      .paper-title    { font-size: 1.6rem; }
+      .stat-grid      { grid-template-columns: repeat(2, 1fr) !important; }
+      .table-scroll   { font-size: 0.75rem; }
+    }
+
+    /* ── Contributions ── */
+    .contrib-list { list-style: none; padding: 0; }
+
+    .contrib-list li {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: flex-start;
+    }
+
+    .contrib-num {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--color-s);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .contrib-body {
+      font-size: 0.97rem;
+      line-height: 1.65;
+      color: #333;
+    }
+
+    /* ── Stat cards ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .stat-card {
+      background: #f8f9fc;
+      border-radius: 10px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      border: 1px solid #eaeef4;
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 500;
+    }
+
+    /* ══════════════════════════════════════════
+       TABLES
+    ══════════════════════════════════════════ */
+    .table-wrap {
+      margin: 1.2rem 0;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+
+    table.paper-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+
+    table.paper-table thead tr {
+      background: #f0f4fa;
+    }
+
+    table.paper-table thead th {
+      padding: 0.75rem 0.9rem;
+      font-weight: 600;
+      color: #444;
+      text-align: center;
+      border-bottom: 2px solid #dde3ef;
+      white-space: nowrap;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    table.paper-table thead th:first-child { text-align: left; }
+
+    table.paper-table tbody td {
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid #f0f0f0;
+      text-align: center;
+      color: #333;
+      vertical-align: middle;
+    }
+
+    table.paper-table tbody td:first-child { text-align: left; }
+
+    table.paper-table tbody tr:last-child td { border-bottom: none; }
+
+    /* Highlight SHOW3D row */
+    table.paper-table tbody tr.row-ours td {
+      background: #f0f6ff;
+      font-weight: 600;
+    }
+
+    /* Separator row between dataset groups */
+    table.paper-table tbody tr.row-sep td {
+      border-top: 2px solid #dde3ef;
+      padding-top: 0.65rem;
+    }
+
+    /* Bold best values */
+    .best { font-weight: 700; color: #1a1a1a; }
+
+    /* Checkmark / cross */
+    .cmark { color: var(--color-h); font-weight: 700; }
+    .xmark { color: #ccc; }
+
+    .table-caption {
+      font-size: 0.85rem;
+      color: #555;
+      margin-top: 0.65rem;
+      line-height: 1.55;
+    }
+
+    .table-caption strong { color: #222; }
+
+    /* ── BibTeX ── */
+    .bibtex-block {
+      background: #f4f6fa;
+      border-left: 4px solid var(--color-s);
+      border-radius: 4px;
+      padding: 1.25rem 1.5rem;
+      font-family: 'Menlo', 'Courier New', monospace;
+      font-size: 0.82rem;
+      line-height: 1.65;
+      overflow-x: auto;
+      white-space: pre;
+      color: #2a2a2a;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.82rem;
+      color: #aaa;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    footer a { color: #999; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<section class="hero-section">
+  <div class="container">
+
+    <h1 class="paper-title">
+      <span class="c-s">S</span><span class="c-h">H</span><span class="c-o">O</span><span class="c-w">W</span><span class="c-3d">3D</span>:
+      Capturing <span class="c-s">Scenes</span> of
+      <span class="c-3d">3D</span>
+      <span class="c-h">Hands</span> and
+      <span class="c-o">Objects</span> in the
+      <span class="c-w">Wild</span>
+    </h1>
+
+    <div class="venue-badge">CVPR 2026</div>
+
+    <p class="authors">
+      Patrick Rim<sup>1,2</sup>&nbsp;&nbsp;
+      Kevin Harris<sup>1</sup>&nbsp;&nbsp;
+      Braden Copple<sup>1</sup>&nbsp;&nbsp;
+      Shangchen Han<sup>1</sup>&nbsp;&nbsp;
+      Xu Xie<sup>1</sup>&nbsp;&nbsp;
+      Ivan Shugurov<sup>1</sup><br>
+      Sizhe An<sup>1</sup>&nbsp;&nbsp;
+      He Wen<sup>1</sup>&nbsp;&nbsp;
+      Alex Wong<sup>2</sup>&nbsp;&nbsp;
+      Tomas Hodan<sup>1</sup>&nbsp;&nbsp;
+      Kun He<sup>1</sup>
+    </p>
+
+    <p class="affiliations">
+      <sup>1</sup>Meta Reality Labs &nbsp;&nbsp; <sup>2</sup>Yale University
+    </p>
+
+    <div class="link-buttons">
+      <a class="link-btn btn-arxiv" href="https://arxiv.org/abs/2603.28760" target="_blank">
+        <i class="fas fa-file-pdf"></i> arXiv
+      </a>
+      <a class="link-btn btn-data" href="https://huggingface.co/datasets/show3d-dataset/show3d" target="_blank">
+        <i class="fas fa-database"></i> Dataset (HuggingFace)
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════ TEASER ════════════════════════════ -->
+<div class="section-paper">
+  <div class="figure-container">
+    <img src="figures/Figure_Main_v4.png" alt="SHOW3D teaser: in-the-wild hand–object interactions with 3D annotations">
+    <p class="figure-caption">
+      <strong>SHOW3D</strong> is the first dataset of in-the-wild hand–object interactions with accurate 3D annotations
+      as well as text descriptions. Captured with a novel mobile multi-camera rig across diverse indoor and outdoor
+      scenes. Overlays show 3D annotations projected to egocentric images (hands in red and blue, object in green).
+    </p>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════ ABSTRACT ══════════════════════════ -->
+<div class="section-paper">
+  <h2 class="section-title">Abstract</h2>
+  <p class="abstract-text">
+    Accurate 3D understanding of human hands and objects during manipulation remains a significant challenge for egocentric
+    computer vision. Existing hand–object interaction datasets are predominantly captured in controlled studio settings,
+    which limits both environmental diversity and the ability of models trained on such data to generalize to real-world
+    scenarios. To address this challenge, we introduce a novel marker-less multi-camera system that allows for nearly
+    unconstrained mobility in genuinely in-the-wild conditions, while still having the ability to generate precise 3D
+    annotations of hands and objects. The capture system consists of a lightweight, back-mounted, multi-camera rig
+    synchronized and calibrated with a user-worn VR headset. For 3D ground-truth annotation of hands and objects, we
+    develop an ego-exo tracking pipeline and rigorously evaluate its quality. Finally, we present
+    <strong>SHOW3D</strong>, the first large-scale dataset with 3D annotations that show hands interacting with objects in
+    diverse real-world environments, including outdoor settings. Our approach significantly reduces the fundamental
+    trade-off between environmental realism and accuracy of 3D annotations, which we validate with experiments on several
+    downstream tasks.
+  </p>
+</div>
+
+<hr class="section-rule">
+
+<!-- ══════════════════════════ CONTRIBUTIONS ══════════════════════════ -->
+<div class="section-paper">
+  <h2 class="section-title">Contributions</h2>
+  <ul class="contrib-list">
+    <li>
+      <div class="contrib-num">1</div>
+      <div class="contrib-body">
+        <strong>A mobile data capture system:</strong> The first capture setup for recording and automatically generating
+        3D annotations of in-the-wild hand–object interactions. Our lightweight backpack-style rig enables accurate
+        ground-truth hand and object pose annotation while users move freely in diverse environments.
+      </div>
+    </li>
+    <li>
+      <div class="contrib-num" style="background: var(--color-h)">2</div>
+      <div class="contrib-body">
+        <strong>Ego-exo 3D ground truth:</strong> A pipeline to annotate 3D hand and object poses via ego-exo fusion
+        with automatic filtering via confidence estimates. We rigorously evaluate quality, demonstrating sub-centimeter
+        median accuracy.
+      </div>
+    </li>
+    <li>
+      <div class="contrib-num" style="background: var(--color-o)">3</div>
+      <div class="contrib-body">
+        <strong>Large and diverse dataset:</strong> SHOW3D comprises 4.3M frames of synchronized multi-view images
+        with comprehensive annotations: 3D hand poses and MANO meshes, 6DoF object poses with 3D models, and
+        action-level text captions.
+      </div>
+    </li>
+    <li>
+      <div class="contrib-num" style="background: var(--color-w)">4</div>
+      <div class="contrib-body">
+        <strong>Demonstrated utility:</strong> Models trained on SHOW3D transfer better to other datasets than vice
+        versa. Text-conditioned forecasting experiments confirm the value of our semantic annotations.
+      </div>
+    </li>
+  </ul>
+</div>
+
+<hr class="section-rule">
+
+<!-- ══════════════════════════ DATASET ════════════════════════════════ -->
+<div class="section-paper">
+  <h2 class="section-title">Dataset</h2>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-number" style="color: var(--color-s)">4.3M</div>
+      <div class="stat-label">Total Frames</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color: var(--color-h)">38</div>
+      <div class="stat-label">Subjects</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color: var(--color-o)">21</div>
+      <div class="stat-label">Objects</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color: var(--color-w)">30+</div>
+      <div class="stat-label">Locations</div>
+    </div>
+  </div>
+
+  <!-- Dataset comparison table -->
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="paper-table">
+        <thead>
+          <tr>
+            <th>Dataset</th>
+            <th>Ego&thinsp;/&thinsp;Exo</th>
+            <th>Frames</th>
+            <th>Hand Pose</th>
+            <th>Obj Pose</th>
+            <th>Objects</th>
+            <th>Subjects</th>
+            <th>Environment</th>
+            <th>Annotation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-ours">
+            <td><strong>SHOW3D (ours)</strong></td>
+            <td>2&thinsp;/&thinsp;8</td>
+            <td>4.3M</td>
+            <td>Both&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>21</td>
+            <td>38</td>
+            <td>In-the-wild</td>
+            <td>Mono + optimization</td>
+          </tr>
+          <tr>
+            <td>GigaHands</td>
+            <td>0&thinsp;/&thinsp;51</td>
+            <td>3.7M</td>
+            <td>Both&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>417</td>
+            <td>51</td>
+            <td>Studio</td>
+            <td>RGB + optimization</td>
+          </tr>
+          <tr>
+            <td>ARCTIC</td>
+            <td>1&thinsp;/&thinsp;8</td>
+            <td>2.1M</td>
+            <td>Both&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>11</td>
+            <td>10</td>
+            <td>Studio</td>
+            <td>MoCap</td>
+          </tr>
+          <tr>
+            <td>HOT3D</td>
+            <td>3&thinsp;/&thinsp;0</td>
+            <td>1.7M</td>
+            <td>Both&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>33</td>
+            <td>19</td>
+            <td>Studio</td>
+            <td>MoCap</td>
+          </tr>
+          <tr>
+            <td>TACO</td>
+            <td>1&thinsp;/&thinsp;12</td>
+            <td>363K</td>
+            <td>Both&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>196</td>
+            <td>14</td>
+            <td>Studio</td>
+            <td>MoCap</td>
+          </tr>
+          <tr>
+            <td>OakInk2</td>
+            <td>1&thinsp;/&thinsp;3</td>
+            <td>993K</td>
+            <td>Both&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>75</td>
+            <td>9</td>
+            <td>Studio</td>
+            <td>MoCap</td>
+          </tr>
+          <tr>
+            <td>HOI4D</td>
+            <td>2&thinsp;/&thinsp;0</td>
+            <td>2.4M</td>
+            <td>Both&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>800</td>
+            <td>4</td>
+            <td>Studio</td>
+            <td>RGB-D + manual</td>
+          </tr>
+          <tr>
+            <td>HO-Cap</td>
+            <td>1&thinsp;/&thinsp;9</td>
+            <td>699K</td>
+            <td>Both&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>64</td>
+            <td>9</td>
+            <td>Studio</td>
+            <td>RGB-D + optimization</td>
+          </tr>
+          <tr>
+            <td>HOGraspNet</td>
+            <td>0&thinsp;/&thinsp;4</td>
+            <td>1.5M</td>
+            <td>Single&thinsp;/&thinsp;Mesh</td>
+            <td><span class="cmark">✓</span></td>
+            <td>30</td>
+            <td>99</td>
+            <td>Studio</td>
+            <td>RGB-D + optimization</td>
+          </tr>
+          <tr class="row-sep">
+            <td>Ego-Exo4D</td>
+            <td>2&thinsp;/&thinsp;4</td>
+            <td>&gt;100M</td>
+            <td>Both&thinsp;/&thinsp;Skel.</td>
+            <td><span class="xmark">✗</span></td>
+            <td>Many</td>
+            <td>740</td>
+            <td>In-the-wild</td>
+            <td>RGB + manual</td>
+          </tr>
+          <tr>
+            <td>AssemblyHands</td>
+            <td>4&thinsp;/&thinsp;8</td>
+            <td>203K</td>
+            <td>Both&thinsp;/&thinsp;Skel.</td>
+            <td><span class="xmark">✗</span></td>
+            <td>Many</td>
+            <td>20</td>
+            <td>Studio</td>
+            <td>RGB + manual</td>
+          </tr>
+          <tr>
+            <td>EgoDex</td>
+            <td>1&thinsp;/&thinsp;0</td>
+            <td>90M</td>
+            <td>Both&thinsp;/&thinsp;Skel.</td>
+            <td><span class="xmark">✗</span></td>
+            <td>Many</td>
+            <td>—</td>
+            <td>Studio-like</td>
+            <td>Apple Vision Pro API</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <strong>Comparison with existing hand–object interaction datasets.</strong>
+      SHOW3D uniquely combines in-the-wild capture with dense, accurate 3D annotations for both hands and objects.
+    </p>
+  </div>
+
+  <!-- Stats figure row -->
+  <div class="fig-row">
+    <div class="figure-container">
+      <img src="figures/dataset_stats.png" alt="SHOW3D dataset statistics">
+      <p class="figure-caption">
+        <strong>Dataset statistics.</strong> Participant distribution (left) and number of recordings per object (right).
+      </p>
+    </div>
+    <div class="figure-container">
+      <img src="figures/Figure_UMAP.png" alt="Cross-dataset UMAP feature embedding">
+      <p class="figure-caption">
+        <strong>Cross-dataset feature diversity.</strong> UMAP embeddings show that SHOW3D (pink) spans a broad
+        visual manifold, bridging compact studio dataset clusters (GigaHands, HOT3D, ARCTIC).
+      </p>
+    </div>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ══════════════════════════ CAPTURE RIG ════════════════════════════ -->
+<div class="section-paper">
+  <h2 class="section-title">Mobile Capture System</h2>
+  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.5rem;">
+    We design a portable, backpack-style multi-camera capture rig weighing roughly eight kilograms. Eight monochrome
+    fisheye cameras are rigidly mounted in a half-dome configuration. Participants also wear a Meta Quest 3 headset
+    providing two additional egocentric views. All ten cameras are hardware-synchronized at 60 Hz and precisely
+    calibrated into a shared 3D reference frame, enabling capture in diverse environments—including outdoors—without
+    restricting natural range of motion.
+  </p>
+  <div class="figure-container">
+    <img src="figures/SHOW3D_Figure_Rig.png" alt="SHOW3D mobile multi-camera capture rig">
+    <p class="figure-caption">
+      <strong>Our mobile multi-camera capture rig.</strong> Left: hardware layout with five MoCap cameras (red),
+      eight exocentric fisheye cameras in a half-dome configuration (green), and two egocentric cameras on the
+      Meta Quest 3 headset (blue). Right: the rig in use during in-the-wild capture sessions.
+    </p>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ══════════════════════════ PIPELINE ══════════════════════════════ -->
+<div class="section-paper">
+  <h2 class="section-title">Ego-Exo Annotation Pipeline</h2>
+  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.5rem;">
+    To generate accurate 3D annotations, we develop an ego-exo fusion pipeline. For <span class="c-h"><strong>hand pose</strong></span>,
+    we fuse 2D keypoint predictions from Sapiens and InterNet via RANSAC-based triangulation across all ten cameras,
+    then fit personalized hand meshes via Inverse Kinematics. For <span class="c-o"><strong>object pose</strong></span>,
+    we extend CNOS, FoundPose, and GoTrack with multi-view gPnP to estimate and refine 6DoF object poses. Both
+    components produce confidence estimates used for automated quality filtering.
+  </p>
+  <div class="figure-container">
+    <img src="figures/Figure_Pipeline.png" alt="SHOW3D ego-exo annotation pipeline">
+    <p class="figure-caption">
+      <strong>Ego-exo annotation pipeline.</strong>
+      (a) Multi-view fisheye input from ego and exo cameras.
+      (b) Hand keypoints fused from Sapiens and InterNet, fitted via Inverse Kinematics.
+      (c) CAD-based 6DoF object pose via CNOS → FoundPose → GoTrack.
+      (d) 3D annotations projected into ego cameras for downstream model training.
+    </p>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ══════════════════════════ EXPERIMENTS ════════════════════════════ -->
+<div class="section-paper">
+  <h2 class="section-title">Experiments</h2>
+
+  <!-- ── 3D Hand Pose Estimation ── -->
+  <h3 class="subsection-title">3D Hand Pose Estimation</h3>
+  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.2rem;">
+    We train UmeTrack on different dataset combinations and evaluate cross-dataset generalization.
+    Models trained only on studio datasets (UmeTrack, HOT3D) regress substantially when evaluated on in-the-wild
+    SHOW3D data. Adding SHOW3D training consistently improves performance across all test domains.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="paper-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Training set</th>
+            <th>Test set</th>
+            <th>MKPE (mm) ↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>UmeTrack</td>
+            <td>SHOW3D</td>
+            <td>22.2</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>HOT3D</td>
+            <td>SHOW3D</td>
+            <td>19.6</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>UmeTrack + HOT3D</td>
+            <td>SHOW3D</td>
+            <td>16.4</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>SHOW3D</td>
+            <td>SHOW3D</td>
+            <td>15.5</td>
+          </tr>
+          <tr class="row-ours">
+            <td>5</td>
+            <td>UmeTrack + HOT3D + <strong>SHOW3D</strong></td>
+            <td>SHOW3D</td>
+            <td><span class="best">14.3</span></td>
+          </tr>
+          <tr class="row-sep">
+            <td>6</td>
+            <td>HOT3D</td>
+            <td>HOT3D</td>
+            <td>14.0</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>UmeTrack + HOT3D</td>
+            <td>HOT3D</td>
+            <td>12.7</td>
+          </tr>
+          <tr class="row-ours">
+            <td>8</td>
+            <td>UmeTrack + HOT3D + <strong>SHOW3D</strong></td>
+            <td>HOT3D</td>
+            <td><span class="best">12.3</span></td>
+          </tr>
+          <tr class="row-sep">
+            <td>9</td>
+            <td>UmeTrack</td>
+            <td>UmeTrack</td>
+            <td>9.7</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>UmeTrack + HOT3D</td>
+            <td>UmeTrack</td>
+            <td><span class="best">9.5</span></td>
+          </tr>
+          <tr class="row-ours">
+            <td>11</td>
+            <td>UmeTrack + HOT3D + <strong>SHOW3D</strong></td>
+            <td>UmeTrack</td>
+            <td>9.6</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <strong>3D hand pose estimation (MKPE, mm, lower is better).</strong> Models trained on existing studio
+      datasets generalize noticeably worse to SHOW3D, highlighting the increased difficulty of in-the-wild data.
+      Adding SHOW3D improves performance on both SHOW3D and HOT3D test sets.
+    </p>
+  </div>
+
+  <!-- ── Interaction Field Estimation ── -->
+  <h3 class="subsection-title">Hand–Object Interaction Field Estimation</h3>
+  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.2rem;">
+    We evaluate cross-dataset generalization of the InterField model between SHOW3D and HOT3D.
+    Training on SHOW3D and testing on HOT3D outperforms the reverse by a wide margin, confirming that
+    in-the-wild data captures a broader distribution of interaction patterns.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="paper-table">
+        <thead>
+          <tr>
+            <th>Train set</th>
+            <th>Test set</th>
+            <th>ADE (mm) ↓</th>
+            <th>ACC (m/s²) ↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-ours">
+            <td><strong>SHOW3D</strong></td>
+            <td>HOT3D</td>
+            <td>14.70</td>
+            <td>4.05</td>
+          </tr>
+          <tr>
+            <td>HOT3D</td>
+            <td>HOT3D</td>
+            <td>11.29</td>
+            <td>3.21</td>
+          </tr>
+          <tr class="row-ours">
+            <td>HOT3D + <strong>SHOW3D</strong></td>
+            <td>HOT3D</td>
+            <td><span class="best">8.80</span></td>
+            <td><span class="best">2.16</span></td>
+          </tr>
+          <tr class="row-sep">
+            <td>HOT3D</td>
+            <td>SHOW3D</td>
+            <td>22.57</td>
+            <td>5.61</td>
+          </tr>
+          <tr class="row-ours">
+            <td><strong>SHOW3D</strong></td>
+            <td>SHOW3D</td>
+            <td>13.82</td>
+            <td><span class="best">3.79</span></td>
+          </tr>
+          <tr class="row-ours">
+            <td><strong>SHOW3D</strong> + HOT3D</td>
+            <td>SHOW3D</td>
+            <td><span class="best">13.50</span></td>
+            <td>3.84</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <strong>Interaction field estimation cross-dataset evaluation.</strong>
+      Training on SHOW3D achieves 14.70 mm ADE on HOT3D, versus 22.57 mm (+54%) in the reverse direction —
+      demonstrating that SHOW3D's broader environmental distribution enables better generalization.
+    </p>
+  </div>
+
+  <!-- ── Text-Driven Forecasting ── -->
+  <h3 class="subsection-title">Text-Driven 6DoF Object Pose Forecasting</h3>
+  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.2rem;">
+    We evaluate whether natural language descriptions improve future object pose prediction.
+    Text conditioning consistently reduces forecasting error across objects and prediction horizons,
+    confirming the value of SHOW3D's semantic annotations.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="paper-table">
+        <thead>
+          <tr>
+            <th>Horizon</th>
+            <th>Condition</th>
+            <th>aria</th>
+            <th>bowl</th>
+            <th>cansoup</th>
+            <th>dinotoy</th>
+            <th>dumbbell</th>
+            <th>juice</th>
+            <th>keyboard</th>
+            <th>milk</th>
+            <th>mouse</th>
+            <th>mug</th>
+            <th>mustard</th>
+            <th>vase</th>
+            <th>waffles</th>
+            <th>Mean</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="2" style="font-weight:600; vertical-align:middle;">30 frames</td>
+            <td>w/o text</td>
+            <td>58.5</td><td>43.1</td><td>28.3</td><td>45.7</td><td>89.7</td><td>30.3</td><td>51.0</td>
+            <td>31.9</td><td>26.6</td><td>32.6</td><td>57.5</td><td>24.2</td><td>36.1</td>
+            <td>42.7</td>
+          </tr>
+          <tr>
+            <td><strong>w/ text</strong></td>
+            <td class="best">49.0</td><td class="best">37.5</td><td class="best">25.0</td>
+            <td class="best">34.0</td><td class="best">73.8</td><td class="best">19.3</td>
+            <td class="best">37.3</td><td class="best">19.5</td><td class="best">14.5</td>
+            <td class="best">21.6</td><td class="best">16.3</td><td class="best">20.3</td>
+            <td class="best">27.0</td>
+            <td class="best" style="color: var(--color-h)">30.4</td>
+          </tr>
+          <tr class="row-sep">
+            <td rowspan="2" style="font-weight:600; vertical-align:middle;">60 frames</td>
+            <td>w/o text</td>
+            <td>63.6</td><td>40.5</td><td>29.0</td><td>46.4</td><td>95.9</td><td>33.1</td><td>66.5</td>
+            <td>22.6</td><td>27.5</td><td>37.4</td><td>77.7</td><td>27.3</td><td>39.9</td>
+            <td>46.7</td>
+          </tr>
+          <tr>
+            <td><strong>w/ text</strong></td>
+            <td class="best">57.0</td><td class="best">32.7</td><td class="best">28.4</td>
+            <td class="best">37.5</td><td class="best">89.0</td><td class="best">21.1</td>
+            <td class="best">34.6</td><td>25.2</td><td class="best">24.7</td>
+            <td class="best">24.4</td><td class="best">19.0</td><td class="best">26.3</td>
+            <td class="best">35.1</td>
+            <td class="best" style="color: var(--color-h)">35.0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <strong>Text-driven 6DoF object pose forecasting (average translation error, mm, lower is better).</strong>
+      Text conditioning reduces mean error by 29% at 30 frames and 25% at 60 frames, with consistent
+      improvements across nearly all objects.
+    </p>
+  </div>
+
+  <!-- ── Ground Truth Examples ── -->
+  <h3 class="subsection-title">Ground Truth Visualizations</h3>
+  <div class="figure-container">
+    <img src="figures/SuppMat_Good1.png" alt="Ground truth examples from SHOW3D" style="margin-bottom: 0.75rem;">
+    <img src="figures/SuppMat_Good2.png" alt="More ground truth examples from SHOW3D">
+    <p class="figure-caption">
+      <strong>Ground truth examples.</strong>
+      Hand pose (red and blue), object pose (green), and text captions across diverse in-the-wild environments.
+      Our pipeline achieves sub-centimeter median accuracy validated against independent gold-standard references.
+    </p>
+  </div>
+
+</div>
+
+<hr class="section-rule">
+
+<!-- ══════════════════════════ BIBTEX ═════════════════════════════════ -->
+<div class="section-paper">
+  <h2 class="section-title">BibTeX</h2>
+  <div class="bibtex-block">@article{rim2026show3d,
+  title   = {SHOW3D: Capturing Scenes of 3D Hands and Objects in the Wild},
+  author  = {Rim, Patrick and Harris, Kevin and Copple, Braden and Han, Shangchen and
+             Xie, Xu and Shugurov, Ivan and An, Sizhe and Wen, He and
+             Wong, Alex and Hodan, Tomas and others},
+  journal = {arXiv preprint arXiv:2603.28760},
+  year    = {2026}
+}</div>
+</div>
+
+<!-- ══════════════════════════ FOOTER ═════════════════════════════════ -->
+<footer>
+  <p>
+    <em>SHOW3D: Capturing Scenes of 3D Hands and Objects in the Wild</em> · CVPR 2026<br>
+    Page design inspired by <a href="https://nerfies.github.io" target="_blank">Nerfies</a>.
+  </p>
+</footer>
+
+</body>
+</html>
