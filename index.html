@@ -20,6 +20,16 @@
       font-family: 'Avenir Next', 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: var(--color-dark);
       background: #fff;
+      position: relative;
+    }
+
+    /* ── Wavy background ── */
+    #wave-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+      pointer-events: none;
     }
 
     /* ── Title color spans ── */
@@ -340,6 +350,64 @@
   </style>
 </head>
 <body>
+
+<canvas id="wave-bg"></canvas>
+<script>
+(function () {
+  const canvas = document.getElementById('wave-bg');
+  const ctx = canvas.getContext('2d');
+
+  const COLORS = [
+    { r: 16,  g: 124, b: 241 },  // S — blue
+    { r: 54,  g: 171, b: 66  },  // H — green
+    { r: 247, g: 175, b: 100 },  // O — orange
+    { r: 238, g: 109, b: 99  },  // W — coral
+    { r: 142, g: 124, b: 189 },  // 3D — purple
+  ];
+
+  const WAVES = COLORS.map((c, i) => ({
+    color: c,
+    amplitude: 55 + i * 18,
+    frequency: 0.0008 + i * 0.00025,
+    speed: 0.00045 + i * 0.00012,
+    yFraction: 0.08 + i * 0.22,
+    phase: (i * Math.PI * 2) / COLORS.length,
+  }));
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const W = canvas.width, H = canvas.height;
+
+    WAVES.forEach(w => {
+      const { r, g, b } = w.color;
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+      for (let x = 0; x <= W; x += 3) {
+        const y = w.yFraction * H
+          + w.amplitude * Math.sin(w.frequency * x * W * 0.003 + t * w.speed * 1000 + w.phase)
+          + w.amplitude * 0.4 * Math.sin(w.frequency * 1.7 * x * W * 0.003 + t * w.speed * 700 + w.phase + 1.1);
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(W, H);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${r},${g},${b},0.045)`;
+      ctx.fill();
+    });
+
+    t += 1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
 
 <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
 <section class="hero-section">
