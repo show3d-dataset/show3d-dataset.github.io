@@ -16,27 +16,47 @@
       --color-dark: #1e1e1e;
     }
 
-    html { background: #fff; }
-
     body {
       font-family: 'Avenir Next', 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: var(--color-dark);
-      background: transparent;
+      background: #fff;
     }
 
-    /* ── Wavy background ── */
-    #wave-bg {
+    /* ── Animated color-wash background (same technique as masthead on patrickqrim.github.io) ── */
+    body::before {
+      content: "";
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      inset: 0;
       z-index: 0;
       pointer-events: none;
+      background: linear-gradient(
+        90deg,
+        transparent                    0%,
+        rgba(16,  124, 241, 0.07)    16%,
+        rgba(54,  171,  66, 0.07)    33%,
+        rgba(247, 175, 100, 0.08)    50%,
+        rgba(238, 109,  99, 0.07)    67%,
+        rgba(142, 124, 189, 0.07)    84%,
+        transparent                  100%
+      );
+      background-size: 280% 100%;
+      opacity: 0.9;
+      animation: bg-color-stream 14s ease-in-out infinite;
     }
 
-    /* Ensure all page content sits above the canvas */
-    body > *:not(#wave-bg):not(script) {
+    body > *:not(script) {
       position: relative;
       z-index: 1;
+    }
+
+    @keyframes bg-color-stream {
+      0%,  100% { background-position:   0% 50%; }
+      45%        { background-position: 100% 50%; }
+      70%        { background-position:  55% 50%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body::before { animation: none; }
     }
 
     /* ── Title color spans ── */
@@ -48,7 +68,7 @@
 
     /* ── Hero ── */
     .hero-section {
-      background: transparent;
+      background: none;
       padding: 3.5rem 1.5rem 2rem;
       text-align: center;
     }
@@ -358,65 +378,6 @@
 </head>
 <body>
 
-<canvas id="wave-bg"></canvas>
-<script>
-(function () {
-  const canvas = document.getElementById('wave-bg');
-  const ctx = canvas.getContext('2d');
-
-  const COLORS = [
-    { r: 16,  g: 124, b: 241 },  // S — blue
-    { r: 54,  g: 171, b: 66  },  // H — green
-    { r: 247, g: 175, b: 100 },  // O — orange
-    { r: 238, g: 109, b: 99  },  // W — coral
-    { r: 142, g: 124, b: 189 },  // 3D — purple
-  ];
-
-  // Each wave is a thick stroked sine line — faint colored band
-  const WAVES = COLORS.map((c, i) => ({
-    color: c,
-    centerFrac: 0.08 + i * 0.22,   // vertical positions: 8%, 30%, 52%, 74%, 96%
-    ampFrac:    0.04 + i * 0.005,   // amplitude as fraction of height
-    freq:       0.0025 + i * 0.0006, // horizontal frequency (cycles/px)
-    speed:      0.00018 + i * 0.00005, // animation speed (rad/ms)
-    lineWidth:  110,
-    phase:      (i * Math.PI * 2) / COLORS.length,
-  }));
-
-  function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  function draw(ts) {
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0, 0, W, H);
-
-    WAVES.forEach(w => {
-      const { r, g, b } = w.color;
-      const cy  = w.centerFrac * H;
-      const amp = w.ampFrac   * H;
-
-      ctx.beginPath();
-      for (let x = 0; x <= W; x += 2) {
-        const y = cy + amp * Math.sin(w.freq * x + ts * w.speed + w.phase)
-                     + amp * 0.35 * Math.sin(w.freq * 1.8 * x + ts * w.speed * 0.7 + w.phase + 1.2);
-        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = `rgba(${r},${g},${b},0.08)`;
-      ctx.lineWidth   = w.lineWidth;
-      ctx.lineJoin    = 'round';
-      ctx.lineCap     = 'round';
-      ctx.stroke();
-    });
-
-    requestAnimationFrame(draw);
-  }
-  requestAnimationFrame(draw);
-})();
-</script>
 
 <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
 <section class="hero-section">
