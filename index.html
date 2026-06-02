@@ -16,11 +16,12 @@
       --color-dark: #1e1e1e;
     }
 
+    html { background: #fff; }
+
     body {
       font-family: 'Avenir Next', 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: var(--color-dark);
-      background: #fff;
-      position: relative;
+      background: transparent;
     }
 
     /* ── Wavy background ── */
@@ -28,8 +29,14 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      z-index: -1;
+      z-index: 0;
       pointer-events: none;
+    }
+
+    /* Ensure all page content sits above the canvas */
+    body > *:not(#wave-bg):not(script) {
+      position: relative;
+      z-index: 1;
     }
 
     /* ── Title color spans ── */
@@ -41,7 +48,7 @@
 
     /* ── Hero ── */
     .hero-section {
-      background: #fff;
+      background: transparent;
       padding: 3.5rem 1.5rem 2rem;
       text-align: center;
     }
@@ -365,13 +372,15 @@
     { r: 142, g: 124, b: 189 },  // 3D — purple
   ];
 
+  // Each wave is a thick stroked sine line — faint colored band
   const WAVES = COLORS.map((c, i) => ({
     color: c,
-    amplitude: 55 + i * 18,
-    frequency: 0.0008 + i * 0.00025,
-    speed: 0.00045 + i * 0.00012,
-    yFraction: 0.08 + i * 0.22,
-    phase: (i * Math.PI * 2) / COLORS.length,
+    centerFrac: 0.08 + i * 0.22,   // vertical positions: 8%, 30%, 52%, 74%, 96%
+    ampFrac:    0.04 + i * 0.005,   // amplitude as fraction of height
+    freq:       0.0025 + i * 0.0006, // horizontal frequency (cycles/px)
+    speed:      0.00018 + i * 0.00005, // animation speed (rad/ms)
+    lineWidth:  110,
+    phase:      (i * Math.PI * 2) / COLORS.length,
   }));
 
   function resize() {
@@ -381,31 +390,31 @@
   window.addEventListener('resize', resize);
   resize();
 
-  let t = 0;
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  function draw(ts) {
     const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
 
     WAVES.forEach(w => {
       const { r, g, b } = w.color;
+      const cy  = w.centerFrac * H;
+      const amp = w.ampFrac   * H;
+
       ctx.beginPath();
-      ctx.moveTo(0, H);
-      for (let x = 0; x <= W; x += 3) {
-        const y = w.yFraction * H
-          + w.amplitude * Math.sin(w.frequency * x * W * 0.003 + t * w.speed * 1000 + w.phase)
-          + w.amplitude * 0.4 * Math.sin(w.frequency * 1.7 * x * W * 0.003 + t * w.speed * 700 + w.phase + 1.1);
-        ctx.lineTo(x, y);
+      for (let x = 0; x <= W; x += 2) {
+        const y = cy + amp * Math.sin(w.freq * x + ts * w.speed + w.phase)
+                     + amp * 0.35 * Math.sin(w.freq * 1.8 * x + ts * w.speed * 0.7 + w.phase + 1.2);
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
-      ctx.lineTo(W, H);
-      ctx.closePath();
-      ctx.fillStyle = `rgba(${r},${g},${b},0.045)`;
-      ctx.fill();
+      ctx.strokeStyle = `rgba(${r},${g},${b},0.08)`;
+      ctx.lineWidth   = w.lineWidth;
+      ctx.lineJoin    = 'round';
+      ctx.lineCap     = 'round';
+      ctx.stroke();
     });
 
-    t += 1;
     requestAnimationFrame(draw);
   }
-  draw();
+  requestAnimationFrame(draw);
 })();
 </script>
 
