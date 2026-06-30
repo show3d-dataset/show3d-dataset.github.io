@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SHOW3D: Capturing Scenes of 3D Hands and Objects in the Wild</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   <style>
     :root {
       --color-s:    #107cf1;
@@ -13,51 +17,37 @@
       --color-o:    #f7af64;
       --color-w:    #ee6d63;
       --color-3d:   #8e7cbd;
-      --color-dark: #1e1e1e;
+      --ink:        #1b1d21;
+      --ink-soft:   #41454d;
+      --ink-mute:   #767b85;
+      --paper:      #fbfbfc;
+      --line:       #e7e8ec;
+      --line-soft:  #f0f1f4;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+      --mono: 'JetBrains Mono', 'Menlo', 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 72px;
     }
 
     body {
-      font-family: 'Avenir Next', 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: var(--color-dark);
-      background: #fff;
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
-    /* ── Animated color-wash background (same technique as masthead on patrickqrim.github.io) ── */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      background: linear-gradient(
-        90deg,
-        transparent                    0%,
-        rgba(16,  124, 241, 0.07)    16%,
-        rgba(54,  171,  66, 0.07)    33%,
-        rgba(247, 175, 100, 0.08)    50%,
-        rgba(238, 109,  99, 0.07)    67%,
-        rgba(142, 124, 189, 0.07)    84%,
-        transparent                  100%
-      );
-      background-size: 280% 100%;
-      opacity: 0.9;
-      animation: bg-color-stream 14s ease-in-out infinite;
-    }
+    a { color: var(--color-s); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-    body > *:not(script) {
-      position: relative;
-      z-index: 1;
-    }
-
-    @keyframes bg-color-stream {
-      0%,  100% { background-position:   0% 50%; }
-      45%        { background-position: 100% 50%; }
-      70%        { background-position:  55% 50%; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      body::before { animation: none; }
-    }
+    ::selection { background: rgba(16, 124, 241, 0.16); }
 
     /* ── Title color spans ── */
     .c-s  { color: var(--color-s); }
@@ -66,322 +56,570 @@
     .c-w  { color: var(--color-w); }
     .c-3d { color: var(--color-3d); }
 
-    /* ── Hero ── */
-    .hero-section {
-      background: none;
-      padding: 3.5rem 1.5rem 2rem;
+    /* ══════════════════════════════════════════
+       TOP RIBBON + NAV
+    ══════════════════════════════════════════ */
+    .palette-ribbon {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      z-index: 60;
+      display: flex;
+    }
+    .palette-ribbon span { flex: 1; }
+    .palette-ribbon span:nth-child(1) { background: var(--color-s); }
+    .palette-ribbon span:nth-child(2) { background: var(--color-h); }
+    .palette-ribbon span:nth-child(3) { background: var(--color-o); }
+    .palette-ribbon span:nth-child(4) { background: var(--color-w); }
+    .palette-ribbon span:nth-child(5) { background: var(--color-3d); }
+
+    .topnav {
+      position: sticky;
+      top: 4px;
+      z-index: 50;
+      background: rgba(251, 251, 252, 0.86);
+      backdrop-filter: saturate(180%) blur(10px);
+      -webkit-backdrop-filter: saturate(180%) blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topnav-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 1.4rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .nav-wordmark {
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+    }
+    .nav-wordmark:hover { text-decoration: none; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.35rem;
+      font-size: 0.83rem;
+      font-weight: 500;
+    }
+    .nav-links a {
+      color: var(--ink-mute);
+      letter-spacing: 0.01em;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--ink); text-decoration: none; }
+    .nav-links a.active { color: var(--ink); }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45em;
+      padding: 0.4em 0.9em;
+      border-radius: 7px;
+      background: var(--ink);
+      color: #fff !important;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+    .nav-cta:hover { text-decoration: none; background: #000; }
+    .nav-meta { display: flex; align-items: center; gap: 0.9rem; }
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+    }
+
+    /* ══════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════ */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 3.4rem 1.4rem 2.4rem;
       text-align: center;
+      border-bottom: 1px solid var(--line);
+    }
+    /* faint technical dot-grid, faded toward edges */
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(27,29,33,0.05) 1px, transparent 1.5px);
+      background-size: 23px 23px;
+      -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 38%, #000 0%, transparent 78%);
+      mask-image: radial-gradient(ellipse 75% 70% at 50% 38%, #000 0%, transparent 78%);
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; max-width: 940px; margin: 0 auto; }
+
+    .eyebrow-venue {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55em;
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 1.1rem;
+    }
+    .eyebrow-venue b { color: var(--ink); font-weight: 700; }
+    .eyebrow-venue .dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--color-w);
     }
 
     .paper-title {
-      font-size: 2.5rem;
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 0.6rem;
-      letter-spacing: -0.01em;
+      font-family: var(--sans);
+      font-size: 2.7rem;
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.022em;
+      margin: 0 auto 1.4rem;
+      max-width: 18ch;
     }
 
-    /* ── Venue badge ── */
-    .venue-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, #1a3a5c 0%, #2563a8 100%);
-      color: #fff;
-      font-weight: 600;
-      font-size: 1rem;
-      padding: 0.35em 1.1em;
-      border-radius: 30px;
-      margin-bottom: 1.8rem;
-      letter-spacing: 0.03em;
+    .authors {
+      font-size: 1.04rem;
+      line-height: 1.85;
+      color: var(--ink-soft);
+      margin: 0 auto 0.35rem;
+      max-width: 52rem;
     }
-
-    /* ── Authors ── */
-    .authors { 
-      font-size: 1.05rem;
-      margin-bottom: 0.4rem;
-      line-height: 1.8;
-      font-weight: 400;
-    }
+    .authors .nm { color: var(--ink); font-weight: 500; }
+    .authors sup { color: var(--ink-mute); font-weight: 600; }
 
     .affiliations {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 2rem;
+      font-size: 0.92rem;
+      color: var(--ink-mute);
+      margin-bottom: 1.9rem;
     }
+    .affiliations sup { font-weight: 600; }
+    .affiliations .sep { color: var(--line); margin: 0 0.7em; }
 
     /* ── Link buttons ── */
     .link-buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 3rem;
+      gap: 0.6rem;
     }
-
     .link-btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.5em;
-      padding: 0.55em 1.4em;
-      border-radius: 8px;
+      gap: 0.55em;
+      padding: 0.6em 1.25em;
+      border-radius: 9px;
       font-weight: 600;
-      font-size: 0.95rem;
-      text-decoration: none;
-      transition: transform 0.15s, box-shadow 0.15s;
+      font-size: 0.92rem;
+      border: 1px solid transparent;
+      transition: transform 0.14s, box-shadow 0.14s, background 0.14s;
     }
-
     .link-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(20, 22, 28, 0.13);
     }
+    .link-btn i { font-size: 0.95em; }
+    .btn-arxiv { background: var(--ink); color: #fff; }
+    .btn-data  { background: #fff; color: var(--ink); border-color: var(--line); }
+    .btn-data:hover { border-color: #d4d6dc; }
+    .btn-poster { background: #fff; color: var(--ink); border-color: var(--line); }
+    .btn-poster:hover { border-color: #d4d6dc; }
+    .btn-bibtex { background: #fff; color: var(--ink); border-color: var(--line); }
+    .btn-bibtex:hover { border-color: #d4d6dc; }
+    .btn-data i  { color: var(--color-o); }
+    .btn-poster i { color: var(--color-3d); }
+    .btn-bibtex i { color: var(--color-s); }
 
-    .btn-arxiv { background: #b31b1b; color: #fff; }
-    .btn-data  { background: #ff9a00; color: #fff; }
+    /* ══════════════════════════════════════════
+       LAYOUT / SECTIONS
+    ══════════════════════════════════════════ */
+    main { max-width: 1080px; margin: 0 auto; }
 
-    /* ── Layout ── */
-    .section-paper {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 2.5rem 1.5rem;
+    .section {
+      padding: 2.6rem 1.4rem;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 70px;
     }
+    .section:last-of-type { border-bottom: none; }
 
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.85rem;
+      margin-bottom: 1.4rem;
+    }
+    .kick-num {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--ink-mute);
+      letter-spacing: 0.02em;
+      position: relative;
+      padding-left: 0.95rem;
+      flex-shrink: 0;
+    }
+    .kick-num::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 9px; height: 9px;
+      border-radius: 2px;
+      background: var(--k, var(--color-s));
+    }
     .section-title {
-      font-size: 1.7rem;
+      font-size: 1.55rem;
       font-weight: 700;
-      margin-bottom: 1.2rem;
-      color: var(--color-dark);
+      letter-spacing: -0.014em;
+      margin: 0;
+      color: var(--ink);
     }
 
     .subsection-title {
-      font-size: 1.15rem;
-      font-weight: 600;
-      margin: 2rem 0 0.8rem;
-      color: var(--color-dark);
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 2.1rem 0 0.7rem;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 0.6em;
+    }
+    .subsection-title::before {
+      content: "";
+      width: 14px; height: 2px;
+      background: var(--color-s);
+      display: inline-block;
     }
 
-    hr.section-rule {
-      border: none;
-      border-top: 1px solid #eee;
-      max-width: 960px;
-      margin: 0 auto;
+    /* reading text */
+    .prose {
+      font-family: var(--serif);
+      font-size: 1.06rem;
+      line-height: 1.72;
+      color: var(--ink-soft);
     }
+    .lede { margin: 0 0 1.3rem; }
 
-    /* ── Abstract ── */
-    .abstract-text {
-      font-size: 1rem;
-      line-height: 1.8;
-      color: #333;
+    /* ══════════════════════════════════════════
+       ABSTRACT — journal two-column
+    ══════════════════════════════════════════ */
+    .abstract-body {
+      font-family: var(--serif);
+      font-size: 1.03rem;
+      line-height: 1.74;
+      color: var(--ink-soft);
       text-align: justify;
+      hyphens: auto;
+      column-count: 2;
+      column-gap: 2.6rem;
+    }
+    .abstract-body::first-letter {
+      font-size: 3.1rem;
+      font-weight: 600;
+      float: left;
+      line-height: 0.8;
+      padding: 0.08em 0.12em 0 0;
+      color: var(--color-s);
+      font-family: var(--serif);
+    }
+    @media (max-width: 720px) {
+      .abstract-body { column-count: 1; }
     }
 
-    /* ── Figures ── */
-    .figure-container {
+    /* ══════════════════════════════════════════
+       CONTRIBUTIONS — accent grid
+    ══════════════════════════════════════════ */
+    .contrib-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .contrib-card {
+      position: relative;
+      padding: 1.05rem 1.15rem 1.05rem 1.3rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .contrib-card::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--c, var(--color-s));
+    }
+    .contrib-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.45rem;
+    }
+    .contrib-body {
+      font-family: var(--serif);
+      font-size: 0.99rem;
+      line-height: 1.6;
+      color: var(--ink-soft);
+    }
+    .contrib-body strong { color: var(--ink); font-weight: 600; }
+    @media (max-width: 720px) {
+      .contrib-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ══════════════════════════════════════════
+       STATS — flat ruled strip
+    ══════════════════════════════════════════ */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      margin-bottom: 1.8rem;
+    }
+    .stat-cell {
+      padding: 1.25rem 1rem;
       text-align: center;
-      margin: 1.5rem 0;
+      border-left: 1px solid var(--line-soft);
+    }
+    .stat-cell:first-child { border-left: none; }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--ink-mute);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 600;
+    }
+    @media (max-width: 560px) {
+      .stat-strip { grid-template-columns: 1fr 1fr; }
+      .stat-cell:nth-child(3) { border-left: none; }
+      .stat-cell:nth-child(3), .stat-cell:nth-child(4) { border-top: 1px solid var(--line-soft); }
     }
 
+    /* ══════════════════════════════════════════
+       FIGURES
+    ══════════════════════════════════════════ */
+    .figure-container { margin: 1.4rem 0; }
     .figure-container img {
       max-width: 100%;
-      border-radius: 6px;
-      box-shadow: 0 2px 14px rgba(0,0,0,0.08);
+      display: block;
+      margin: 0 auto;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      box-shadow: 0 1px 3px rgba(20, 22, 28, 0.05);
     }
-
     .figure-caption {
-      font-size: 0.875rem;
-      color: #555;
-      margin-top: 0.8rem;
-      text-align: left;
+      font-family: var(--serif);
+      font-size: 0.9rem;
+      color: var(--ink-mute);
+      margin-top: 0.85rem;
       line-height: 1.6;
+      padding-left: 0.85rem;
+      border-left: 2px solid var(--line);
     }
+    .figure-caption strong { color: var(--ink-soft); font-weight: 600; }
 
-    .figure-caption strong { color: #222; }
-
-    /* ── Two-column grid ── */
     .fig-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin: 1.5rem 0;
+      gap: 1.6rem;
+      margin: 1.4rem 0;
     }
-
-    @media (max-width: 640px) {
-      .fig-row        { grid-template-columns: 1fr; }
-      .paper-title    { font-size: 1.6rem; }
-      .stat-grid      { grid-template-columns: repeat(2, 1fr) !important; }
-      .table-scroll   { font-size: 0.75rem; }
-    }
-
-    /* ── Contributions ── */
-    .contrib-list { list-style: none; padding: 0; }
-
-    .contrib-list li {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      align-items: flex-start;
-    }
-
-    .contrib-num {
-      flex-shrink: 0;
-      width: 2rem;
-      height: 2rem;
-      border-radius: 50%;
-      background: var(--color-s);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
-
-    .contrib-body {
-      font-size: 0.97rem;
-      line-height: 1.65;
-      color: #333;
-    }
-
-    /* ── Stat cards ── */
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-
-    .stat-card {
-      background: #f8f9fc;
-      border-radius: 10px;
-      padding: 1.2rem 1rem;
-      text-align: center;
-      border: 1px solid #eaeef4;
-    }
-
-    .stat-number {
-      font-size: 1.8rem;
-      font-weight: 700;
-      line-height: 1;
-      margin-bottom: 0.3rem;
-    }
-
-    .stat-label {
-      font-size: 0.78rem;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      font-weight: 500;
+    @media (max-width: 720px) {
+      .fig-row { grid-template-columns: 1fr; }
     }
 
     /* ══════════════════════════════════════════
        TABLES
     ══════════════════════════════════════════ */
-    .table-wrap {
-      margin: 1.2rem 0;
-    }
-
+    .table-wrap { margin: 1.2rem 0 0.4rem; }
     .table-scroll {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--line);
       border-radius: 10px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
     }
-
     table.paper-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.875rem;
+      font-size: 0.86rem;
       background: #fff;
     }
-
-    table.paper-table thead tr {
-      background: #f0f4fa;
-    }
-
+    table.paper-table thead tr { background: #f6f7f9; }
     table.paper-table thead th {
-      padding: 0.75rem 0.9rem;
+      padding: 0.7rem 0.9rem;
       font-weight: 600;
-      color: #444;
+      color: var(--ink-soft);
       text-align: center;
-      border-bottom: 2px solid #dde3ef;
+      border-bottom: 1px solid var(--line);
       white-space: nowrap;
-      font-size: 0.82rem;
+      font-size: 0.74rem;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
     }
-
     table.paper-table thead th:first-child { text-align: left; }
-
     table.paper-table tbody td {
-      padding: 0.6rem 0.9rem;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 0.58rem 0.9rem;
+      border-bottom: 1px solid var(--line-soft);
       text-align: center;
-      color: #333;
+      color: var(--ink-soft);
       vertical-align: middle;
+      font-variant-numeric: tabular-nums;
     }
-
-    table.paper-table tbody td:first-child { text-align: left; }
-
+    table.paper-table tbody td:first-child { text-align: left; color: var(--ink); }
     table.paper-table tbody tr:last-child td { border-bottom: none; }
-
-    /* Highlight SHOW3D row */
+    table.paper-table tbody tr:hover td { background: #fafbfc; }
     table.paper-table tbody tr.row-ours td {
       background: #f0f6ff;
       font-weight: 600;
+      color: var(--ink);
     }
-
-    /* Separator row between dataset groups */
+    table.paper-table tbody tr.row-ours:hover td { background: #e8f1ff; }
     table.paper-table tbody tr.row-sep td {
-      border-top: 2px solid #dde3ef;
-      padding-top: 0.65rem;
+      border-top: 1px solid var(--line);
+      padding-top: 0.62rem;
     }
-
-    /* Bold best values */
-    .best { font-weight: 700; color: #1a1a1a; }
-
-    /* Checkmark / cross */
+    .best { font-weight: 700; color: var(--ink); }
     .cmark { color: var(--color-h); font-weight: 700; }
-    .xmark { color: #ccc; }
-
+    .xmark { color: #cbced4; }
     .table-caption {
-      font-size: 0.85rem;
-      color: #555;
-      margin-top: 0.65rem;
+      font-family: var(--serif);
+      font-size: 0.88rem;
+      color: var(--ink-mute);
+      margin-top: 0.7rem;
       line-height: 1.55;
+      padding-left: 0.85rem;
+      border-left: 2px solid var(--line);
     }
+    .table-caption strong { color: var(--ink-soft); font-weight: 600; }
 
-    .table-caption strong { color: #222; }
-
-    /* ── BibTeX ── */
+    /* ══════════════════════════════════════════
+       BIBTEX
+    ══════════════════════════════════════════ */
+    .bibtex-shell {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fbfcfe;
+    }
+    .bibtex-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.8rem 0.55rem 1rem;
+      background: #f6f7f9;
+      border-bottom: 1px solid var(--line);
+    }
+    .bibtex-bar span {
+      font-family: var(--mono);
+      font-size: 0.74rem;
+      color: var(--ink-mute);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45em;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink-soft);
+      font-family: var(--sans);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 0.32em 0.75em;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.14s, color 0.14s;
+    }
+    .copy-btn:hover { border-color: #cdd0d6; color: var(--ink); }
+    .copy-btn.copied { color: var(--color-h); border-color: var(--color-h); }
     .bibtex-block {
-      background: #f4f6fa;
-      border-left: 4px solid var(--color-s);
-      border-radius: 4px;
-      padding: 1.25rem 1.5rem;
-      font-family: 'Menlo', 'Courier New', monospace;
-      font-size: 0.82rem;
+      margin: 0;
+      padding: 1.1rem 1.25rem;
+      font-family: var(--mono);
+      font-size: 0.81rem;
       line-height: 1.65;
       overflow-x: auto;
       white-space: pre;
-      color: #2a2a2a;
+      color: var(--ink-soft);
     }
 
-    /* ── Footer ── */
+    /* ══════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════ */
     footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.82rem;
-      color: #aaa;
-      border-top: 1px solid #f0f0f0;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2.2rem 1.4rem 3rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      border-top: 1px solid var(--line);
     }
+    .footer-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+    .footer-title .yr { color: var(--ink-mute); font-weight: 400; }
+    .footer-note { font-size: 0.82rem; color: var(--ink-mute); }
+    .footer-note a { color: var(--ink-soft); }
 
-    footer a { color: #999; }
+    @media (max-width: 600px) {
+      .paper-title { font-size: 1.85rem; }
+      .section { padding: 2.1rem 1.2rem; }
+      .table-scroll { font-size: 0.78rem; }
+    }
   </style>
 </head>
 <body>
 
+<div class="palette-ribbon"><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- ═══════════════════════════════ NAV ═══════════════════════════════ -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="nav-wordmark" href="#top">
+      <span class="c-s">S</span><span class="c-h">H</span><span class="c-o">O</span><span class="c-w">W</span><span class="c-3d">3D</span>
+    </a>
+    <div class="nav-links">
+      <a href="#abstract">Abstract</a>
+      <a href="#contributions">Contributions</a>
+      <a href="#dataset">Dataset</a>
+      <a href="#system">System</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#experiments">Experiments</a>
+    </div>
+    <div class="nav-meta">
+      <a class="nav-cta" href="https://arxiv.org/abs/2603.28760" target="_blank"><i class="fas fa-file-pdf"></i> Paper</a>
+    </div>
+  </div>
+</nav>
 
 <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
-<section class="hero-section">
-  <div class="container">
+<header class="hero" id="top">
+  <div class="hero-inner">
+
+    <div class="eyebrow-venue">
+      <span class="dot"></span> <b>CVPR&nbsp;2026</b> &nbsp;·&nbsp; Meta Reality Labs &times; Yale University
+    </div>
 
     <h1 class="paper-title">
       <span class="c-s">S</span><span class="c-h">H</span><span class="c-o">O</span><span class="c-w">W</span><span class="c-3d">3D</span>:
@@ -392,24 +630,22 @@
       <span class="c-w">Wild</span>
     </h1>
 
-    <div class="venue-badge">CVPR 2026</div>
-
     <p class="authors">
-      Patrick Rim<sup>1,2</sup>&nbsp;&nbsp;
-      Kevin Harris<sup>1</sup>&nbsp;&nbsp;
-      Braden Copple<sup>1</sup>&nbsp;&nbsp;
-      Shangchen Han<sup>1</sup>&nbsp;&nbsp;
-      Xu Xie<sup>1</sup>&nbsp;&nbsp;
-      Ivan Shugurov<sup>1</sup><br>
-      Sizhe An<sup>1</sup>&nbsp;&nbsp;
-      He Wen<sup>1</sup>&nbsp;&nbsp;
-      Alex Wong<sup>2</sup>&nbsp;&nbsp;
-      Tomas Hodan<sup>1</sup>&nbsp;&nbsp;
-      Kun He<sup>1</sup>
+      <span class="nm">Patrick Rim</span><sup>1,2</sup>&ensp;
+      <span class="nm">Kevin Harris</span><sup>1</sup>&ensp;
+      <span class="nm">Braden Copple</span><sup>1</sup>&ensp;
+      <span class="nm">Shangchen Han</span><sup>1</sup>&ensp;
+      <span class="nm">Xu Xie</span><sup>1</sup>&ensp;
+      <span class="nm">Ivan Shugurov</span><sup>1</sup><br>
+      <span class="nm">Sizhe An</span><sup>1</sup>&ensp;
+      <span class="nm">He Wen</span><sup>1</sup>&ensp;
+      <span class="nm">Alex Wong</span><sup>2</sup>&ensp;
+      <span class="nm">Tomas Hodan</span><sup>1</sup>&ensp;
+      <span class="nm">Kun He</span><sup>1</sup>
     </p>
 
     <p class="affiliations">
-      <sup>1</sup>Meta Reality Labs &nbsp;&nbsp; <sup>2</sup>Yale University
+      <sup>1</sup>Meta Reality Labs <span class="sep">|</span> <sup>2</sup>Yale University
     </p>
 
     <div class="link-buttons">
@@ -417,18 +653,24 @@
         <i class="fas fa-file-pdf"></i> arXiv
       </a>
       <a class="link-btn btn-data" href="https://huggingface.co/datasets/facebook/show3d-dataset" target="_blank">
-        <i class="fas fa-database"></i> Dataset (HuggingFace) 
+        <i class="fas fa-database"></i> Dataset <span style="color:var(--ink-mute);font-weight:500">(HuggingFace)</span>
+      </a>
+      <a class="link-btn btn-poster" href="SHOW3D_CVPR_Poster.pdf" target="_blank">
+        <i class="fas fa-image"></i> Poster
+      </a>
+      <a class="link-btn btn-bibtex" href="#bibtex">
+        <i class="fas fa-quote-right"></i> BibTeX
       </a>
     </div>
 
   </div>
-</section>
+</header>
 
-<hr class="section-rule">
+<main>
 
 <!-- ═══════════════════════════════ TEASER ════════════════════════════ -->
-<div class="section-paper">
-  <div class="figure-container">
+<section class="section" style="border-bottom:1px solid var(--line);">
+  <div class="figure-container" style="margin-top:0;">
     <img src="figures/Figure_Main_v4.png" alt="SHOW3D teaser: in-the-wild hand–object interactions with 3D annotations">
     <p class="figure-caption">
       <strong>SHOW3D</strong> is the first dataset of in-the-wild hand–object interactions with accurate 3D annotations
@@ -436,14 +678,15 @@
       scenes. Overlays show 3D annotations projected to egocentric images (hands in red and blue, object in green).
     </p>
   </div>
-</div>
-
-<hr class="section-rule">
+</section>
 
 <!-- ═══════════════════════════════ ABSTRACT ══════════════════════════ -->
-<div class="section-paper">
-  <h2 class="section-title">Abstract</h2>
-  <p class="abstract-text">
+<section class="section" id="abstract">
+  <div class="section-head">
+    <span class="kick-num" style="--k:var(--color-s)">01</span>
+    <h2 class="section-title">Abstract</h2>
+  </div>
+  <p class="abstract-body">
     Accurate 3D understanding of human hands and objects during manipulation remains a significant challenge for egocentric
     computer vision. Existing hand–object interaction datasets are predominantly captured in controlled studio settings,
     which limits both environmental diversity and the ability of models trained on such data to generalize to real-world
@@ -457,68 +700,70 @@
     trade-off between environmental realism and accuracy of 3D annotations, which we validate with experiments on several
     downstream tasks.
   </p>
-</div>
-
-<hr class="section-rule">
+</section>
 
 <!-- ══════════════════════════ CONTRIBUTIONS ══════════════════════════ -->
-<div class="section-paper">
-  <h2 class="section-title">Contributions</h2>
-  <ul class="contrib-list">
-    <li>
-      <div class="contrib-num">1</div>
+<section class="section" id="contributions">
+  <div class="section-head">
+    <span class="kick-num" style="--k:var(--color-3d)">02</span>
+    <h2 class="section-title">Contributions</h2>
+  </div>
+  <div class="contrib-grid">
+    <div class="contrib-card" style="--c:var(--color-s)">
+      <span class="contrib-tag" style="color:var(--color-s)">Capture System</span>
       <div class="contrib-body">
         <strong>A mobile data capture system:</strong> The first capture setup for recording and automatically generating
         3D annotations of in-the-wild hand–object interactions. Our lightweight backpack-style rig enables accurate
         ground-truth hand and object pose annotation while users move freely in diverse environments.
       </div>
-    </li>
-    <li>
-      <div class="contrib-num" style="background: var(--color-h)">2</div>
+    </div>
+    <div class="contrib-card" style="--c:var(--color-h)">
+      <span class="contrib-tag" style="color:var(--color-h)">Ground Truth</span>
       <div class="contrib-body">
         <strong>Ego-exo 3D ground truth:</strong> A pipeline to annotate 3D hand and object poses via ego-exo fusion
         with automatic filtering via confidence estimates. We rigorously evaluate quality, demonstrating sub-centimeter
         median accuracy.
       </div>
-    </li>
-    <li>
-      <div class="contrib-num" style="background: var(--color-o)">3</div>
+    </div>
+    <div class="contrib-card" style="--c:var(--color-o)">
+      <span class="contrib-tag" style="color:#d98a2b">Dataset</span>
       <div class="contrib-body">
         <strong>Large and diverse dataset:</strong> SHOW3D comprises 4.3M frames of synchronized multi-view images
         with comprehensive annotations: 3D hand poses and MANO meshes, 6DoF object poses with 3D models, and
         action-level text captions.
       </div>
-    </li>
-    <li>
-      <div class="contrib-num" style="background: var(--color-w)">4</div>
+    </div>
+    <div class="contrib-card" style="--c:var(--color-w)">
+      <span class="contrib-tag" style="color:var(--color-w)">Utility</span>
       <div class="contrib-body">
         <strong>Demonstrated utility:</strong> Models trained on SHOW3D transfer better to other datasets than vice
         versa. Text-conditioned forecasting experiments confirm the value of our semantic annotations.
       </div>
-    </li>
-  </ul>
-</div>
-
-<hr class="section-rule">
+    </div>
+  </div>
+</section>
 
 <!-- ══════════════════════════ DATASET ════════════════════════════════ -->
-<div class="section-paper">
-  <h2 class="section-title">Dataset</h2>
+<section class="section" id="dataset">
+  <div class="section-head">
+    <span class="kick-num" style="--k:var(--color-o)">03</span>
+    <h2 class="section-title">Dataset</h2>
+  </div>
 
-  <div class="stat-grid">
-    <div class="stat-card">
+  <div class="stat-strip">
+    <div class="stat-cell">
       <div class="stat-number" style="color: var(--color-s)">4.3M</div>
       <div class="stat-label">Total Frames</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-cell">
       <div class="stat-number" style="color: var(--color-h)">38</div>
       <div class="stat-label">Subjects</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-cell">
       <div class="stat-number" style="color: var(--color-o)">21</div>
       <div class="stat-label">Objects</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-cell">
       <div class="stat-number" style="color: var(--color-w)">30+</div>
       <div class="stat-label">Locations</div>
     </div>
@@ -699,14 +944,15 @@
       </p>
     </div>
   </div>
-</div>
-
-<hr class="section-rule">
+</section>
 
 <!-- ══════════════════════════ CAPTURE RIG ════════════════════════════ -->
-<div class="section-paper">
-  <h2 class="section-title">Mobile Capture System</h2>
-  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.5rem;">
+<section class="section" id="system">
+  <div class="section-head">
+    <span class="kick-num" style="--k:var(--color-h)">04</span>
+    <h2 class="section-title">Mobile Capture System</h2>
+  </div>
+  <p class="prose lede">
     We design a portable, backpack-style multi-camera capture rig weighing roughly eight kilograms. Eight monochrome
     fisheye cameras are rigidly mounted in a half-dome configuration. Participants also wear a Meta Quest 3 headset
     providing two additional egocentric views. All ten cameras are hardware-synchronized at 60 Hz and precisely
@@ -721,14 +967,15 @@
       Meta Quest 3 headset (blue). Right: the rig in use during in-the-wild capture sessions.
     </p>
   </div>
-</div>
-
-<hr class="section-rule">
+</section>
 
 <!-- ══════════════════════════ PIPELINE ══════════════════════════════ -->
-<div class="section-paper">
-  <h2 class="section-title">Ego-Exo Annotation Pipeline</h2>
-  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.5rem;">
+<section class="section" id="pipeline">
+  <div class="section-head">
+    <span class="kick-num" style="--k:var(--color-w)">05</span>
+    <h2 class="section-title">Ego-Exo Annotation Pipeline</h2>
+  </div>
+  <p class="prose lede">
     To generate accurate 3D annotations, we develop an ego-exo fusion pipeline. For <span class="c-h"><strong>hand pose</strong></span>,
     we fuse 2D keypoint predictions from Sapiens and InterNet via RANSAC-based triangulation across all ten cameras,
     then fit personalized hand meshes via Inverse Kinematics. For <span class="c-o"><strong>object pose</strong></span>,
@@ -745,17 +992,18 @@
       (d) 3D annotations projected into ego cameras for downstream model training.
     </p>
   </div>
-</div>
-
-<hr class="section-rule">
+</section>
 
 <!-- ══════════════════════════ EXPERIMENTS ════════════════════════════ -->
-<div class="section-paper">
-  <h2 class="section-title">Experiments</h2>
+<section class="section" id="experiments">
+  <div class="section-head">
+    <span class="kick-num" style="--k:var(--color-s)">06</span>
+    <h2 class="section-title">Experiments</h2>
+  </div>
 
   <!-- ── 3D Hand Pose Estimation ── -->
   <h3 class="subsection-title">3D Hand Pose Estimation</h3>
-  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.2rem;">
+  <p class="prose lede">
     We train UmeTrack on different dataset combinations and evaluate cross-dataset generalization.
     Models trained only on studio datasets (UmeTrack, HOT3D) regress substantially when evaluated on in-the-wild
     SHOW3D data. Adding SHOW3D training consistently improves performance across all test domains.
@@ -851,7 +1099,7 @@
 
   <!-- ── Interaction Field Estimation ── -->
   <h3 class="subsection-title">Hand–Object Interaction Field Estimation</h3>
-  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.2rem;">
+  <p class="prose lede">
     We evaluate cross-dataset generalization of the InterField model between SHOW3D and HOT3D.
     Training on SHOW3D and testing on HOT3D outperforms the reverse by a wide margin, confirming that
     in-the-wild data captures a broader distribution of interaction patterns.
@@ -917,7 +1165,7 @@
 
   <!-- ── Text-Driven Forecasting ── -->
   <h3 class="subsection-title">Text-Driven 6DoF Object Pose Forecasting</h3>
-  <p style="font-size: 0.97rem; line-height: 1.75; color: #333; margin-bottom: 1.2rem;">
+  <p class="prose lede">
     We evaluate whether natural language descriptions improve future object pose prediction.
     Text conditioning consistently reduces forecasting error across objects and prediction horizons,
     confirming the value of SHOW3D's semantic annotations.
@@ -1001,30 +1249,83 @@
     </p>
   </div>
 
-</div>
-
-<hr class="section-rule">
+</section>
 
 <!-- ══════════════════════════ BIBTEX ═════════════════════════════════ -->
-<div class="section-paper">
-  <h2 class="section-title">BibTeX</h2>
-  <div class="bibtex-block">@article{rim2026show3d,
+<section class="section" id="bibtex">
+  <div class="section-head">
+    <span class="kick-num" style="--k:var(--color-3d)">07</span>
+    <h2 class="section-title">BibTeX</h2>
+  </div>
+  <div class="bibtex-shell">
+    <div class="bibtex-bar">
+      <span>cite this work</span>
+      <button class="copy-btn" id="copyBib" type="button" aria-label="Copy BibTeX">
+        <i class="far fa-copy"></i> Copy
+      </button>
+    </div>
+    <pre class="bibtex-block" id="bibText">@article{rim2026show3d,
   title   = {SHOW3D: Capturing Scenes of 3D Hands and Objects in the Wild},
   author  = {Rim, Patrick and Harris, Kevin and Copple, Braden and Han, Shangchen and
              Xie, Xu and Shugurov, Ivan and An, Sizhe and Wen, He and
              Wong, Alex and Hodan, Tomas and others},
   journal = {arXiv preprint arXiv:2603.28760},
   year    = {2026}
-}</div>
-</div>
+}</pre>
+  </div>
+</section>
+
+</main>
 
 <!-- ══════════════════════════ FOOTER ═════════════════════════════════ -->
 <footer>
-  <p>
-    <em>SHOW3D: Capturing Scenes of 3D Hands and Objects in the Wild</em> · CVPR 2026<br>
+  <div class="footer-title">
+    <span class="c-s">S</span><span class="c-h">H</span><span class="c-o">O</span><span class="c-w">W</span><span class="c-3d">3D</span>
+    &nbsp;·&nbsp; Capturing Scenes of 3D Hands and Objects in the Wild &nbsp;<span class="yr">/ CVPR 2026</span>
+  </div>
+  <div class="footer-note">
     Page design inspired by <a href="https://nerfies.github.io" target="_blank">Nerfies</a>.
-  </p>
+  </div>
 </footer>
+
+<script>
+  // BibTeX copy-to-clipboard
+  (function () {
+    var btn = document.getElementById('copyBib');
+    var src = document.getElementById('bibText');
+    if (!btn || !src) return;
+    btn.addEventListener('click', function () {
+      navigator.clipboard.writeText(src.textContent).then(function () {
+        btn.classList.add('copied');
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+        setTimeout(function () {
+          btn.classList.remove('copied');
+          btn.innerHTML = '<i class="far fa-copy"></i> Copy';
+        }, 1800);
+      });
+    });
+  })();
+
+  // Scrollspy: highlight active nav link
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+    var map = {};
+    links.forEach(function (l) { map[l.getAttribute('href').slice(1)] = l; });
+    var sections = links
+      .map(function (l) { return document.getElementById(l.getAttribute('href').slice(1)); })
+      .filter(Boolean);
+    if (!('IntersectionObserver' in window) || !sections.length) return;
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    sections.forEach(function (s) { obs.observe(s); });
+  })();
+</script>
 
 </body>
 </html>
