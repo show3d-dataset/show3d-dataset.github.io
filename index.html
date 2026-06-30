@@ -153,31 +153,52 @@
     }
     .hero-inner { position: relative; max-width: 940px; margin: 0 auto; }
 
-    .eyebrow-venue {
-      display: inline-flex;
+    /* ── Conference badge ── */
+    .conf-badge {
+      display: flex;
       align-items: center;
-      gap: 0.55em;
-      font-size: 0.74rem;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.6rem;
+    }
+    .conf-badge .rule {
+      height: 1px;
+      width: clamp(26px, 7vw, 60px);
+    }
+    .conf-badge .rule.l { background: linear-gradient(to right, transparent, #d2d5dd); }
+    .conf-badge .rule.r { background: linear-gradient(to left,  transparent, #d2d5dd); }
+    .conf-text {
+      font-family: var(--serif);
+      font-size: clamp(1rem, 3vw, 1.18rem);
       font-weight: 600;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.36em;
       text-transform: uppercase;
-      color: var(--ink-mute);
-      margin-bottom: 1.1rem;
+      color: var(--ink);
+      padding-left: 0.36em;   /* offset trailing letter-spacing */
+      white-space: nowrap;
     }
-    .eyebrow-venue b { color: var(--ink); font-weight: 700; }
-    .eyebrow-venue .dot {
-      width: 5px; height: 5px; border-radius: 50%;
-      background: var(--color-w);
-    }
+    .conf-text .yr { color: var(--color-s); }
 
-    .paper-title {
+    /* ── Title ── */
+    .paper-title { margin: 0 auto 1.5rem; }
+    .title-mark {
+      display: block;
       font-family: var(--sans);
-      font-size: 2.7rem;
+      font-size: clamp(3rem, 9vw, 4.7rem);
       font-weight: 800;
-      line-height: 1.12;
-      letter-spacing: -0.022em;
-      margin: 0 auto 1.4rem;
-      max-width: 18ch;
+      letter-spacing: -0.035em;
+      line-height: 0.96;
+    }
+    .title-sub {
+      display: block;
+      font-family: var(--sans);
+      font-size: clamp(1.3rem, 3.6vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.018em;
+      line-height: 1.2;
+      margin-top: 0.65rem;
+      color: var(--ink);
+      text-wrap: balance;
     }
 
     .authors {
@@ -223,15 +244,32 @@
     }
     .link-btn i { font-size: 0.95em; }
     .btn-arxiv { background: var(--ink); color: #fff; }
-    .btn-data  { background: #fff; color: var(--ink); border-color: var(--line); }
-    .btn-data:hover { border-color: #d4d6dc; }
+    .btn-data {
+      background: linear-gradient(110deg, #ed9638 0%, #f9c069 26%, #ee6d63 52%, #f2a24c 78%, #ed9638 100%);
+      background-size: 280% 100%;
+      color: #fff;
+      border-color: transparent;
+      text-shadow: 0 1px 2px rgba(120, 52, 18, 0.28);
+      box-shadow: 0 3px 12px rgba(240, 140, 70, 0.4);
+      animation: data-wave 5.5s ease-in-out infinite;
+    }
+    .btn-data:hover { border-color: transparent; }
     .btn-poster { background: #fff; color: var(--ink); border-color: var(--line); }
     .btn-poster:hover { border-color: #d4d6dc; }
     .btn-bibtex { background: #fff; color: var(--ink); border-color: var(--line); }
     .btn-bibtex:hover { border-color: #d4d6dc; }
-    .btn-data i  { color: var(--color-o); }
+    .btn-data i  { color: #fff; }
     .btn-poster i { color: var(--color-3d); }
     .btn-bibtex i { color: var(--color-s); }
+    .btn-data .hf-tag { color: rgba(255, 255, 255, 0.82); font-weight: 500; }
+
+    @keyframes data-wave {
+      0%, 100% { background-position:   0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn-data { animation: none; }
+    }
 
     /* ══════════════════════════════════════════
        LAYOUT / SECTIONS
@@ -305,30 +343,54 @@
     .lede { margin: 0 0 1.3rem; }
 
     /* ══════════════════════════════════════════
-       ABSTRACT — journal two-column
+       TL;DR
     ══════════════════════════════════════════ */
-    .abstract-body {
+    .tldr-lede {
       font-family: var(--serif);
-      font-size: 1.03rem;
-      line-height: 1.74;
-      color: var(--ink-soft);
-      text-align: justify;
-      hyphens: auto;
-      column-count: 2;
-      column-gap: 2.6rem;
+      font-size: clamp(1.22rem, 2.5vw, 1.5rem);
+      line-height: 1.5;
+      color: var(--ink);
+      margin: 0 0 1.5rem;
+      max-width: 56rem;
     }
-    .abstract-body::first-letter {
-      font-size: 3.1rem;
-      font-weight: 600;
-      float: left;
-      line-height: 0.8;
-      padding: 0.08em 0.12em 0 0;
+    .tldr-lede strong { font-weight: 600; }
+    .tldr-lede em { font-style: italic; font-weight: 600; }
+
+    .tldr-callout {
+      position: relative;
+      border: 1px solid #e2e8f3;
+      background: linear-gradient(180deg, #f4f8ff 0%, #fbfcfe 100%);
+      border-radius: 12px;
+      padding: 1.2rem 1.45rem 1.3rem 1.7rem;
+      overflow: hidden;
+      max-width: 56rem;
+    }
+    .tldr-callout::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: var(--color-s);
+    }
+    .tldr-callout-label {
+      display: flex;
+      align-items: center;
+      gap: 0.55em;
+      font-size: 0.79rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
       color: var(--color-s);
+      margin-bottom: 0.6rem;
+    }
+    .tldr-callout-body {
       font-family: var(--serif);
+      font-size: 1.04rem;
+      line-height: 1.66;
+      color: var(--ink-soft);
+      margin: 0;
     }
-    @media (max-width: 720px) {
-      .abstract-body { column-count: 1; }
-    }
+    .tldr-callout-body strong { color: var(--ink); font-weight: 600; }
 
     /* ══════════════════════════════════════════
        CONTRIBUTIONS — accent grid
@@ -583,7 +645,6 @@
     .footer-note a { color: var(--ink-soft); }
 
     @media (max-width: 600px) {
-      .paper-title { font-size: 1.85rem; }
       .section { padding: 2.1rem 1.2rem; }
       .table-scroll { font-size: 0.78rem; }
     }
@@ -600,7 +661,7 @@
       <span class="c-s">S</span><span class="c-h">H</span><span class="c-o">O</span><span class="c-w">W</span><span class="c-3d">3D</span>
     </a>
     <div class="nav-links">
-      <a href="#abstract">Abstract</a>
+      <a href="#tldr">TL;DR</a>
       <a href="#contributions">Contributions</a>
       <a href="#dataset">Dataset</a>
       <a href="#system">System</a>
@@ -617,17 +678,23 @@
 <header class="hero" id="top">
   <div class="hero-inner">
 
-    <div class="eyebrow-venue">
-      <span class="dot"></span> <b>CVPR&nbsp;2026</b> &nbsp;·&nbsp; Meta Reality Labs &times; Yale University
+    <div class="conf-badge">
+      <span class="rule l"></span>
+      <span class="conf-text">CVPR&nbsp;<span class="yr">2026</span></span>
+      <span class="rule r"></span>
     </div>
 
     <h1 class="paper-title">
-      <span class="c-s">S</span><span class="c-h">H</span><span class="c-o">O</span><span class="c-w">W</span><span class="c-3d">3D</span>:
-      Capturing <span class="c-s">Scenes</span> of
-      <span class="c-3d">3D</span>
-      <span class="c-h">Hands</span> and
-      <span class="c-o">Objects</span> in the
-      <span class="c-w">Wild</span>
+      <span class="title-mark">
+        <span class="c-s">S</span><span class="c-h">H</span><span class="c-o">O</span><span class="c-w">W</span><span class="c-3d">3D</span>
+      </span>
+      <span class="title-sub">
+        Capturing <span class="c-s">Scenes</span> of
+        <span class="c-3d">3D</span>
+        <span class="c-h">Hands</span> and
+        <span class="c-o">Objects</span> in the
+        <span class="c-w">Wild</span>
+      </span>
     </h1>
 
     <p class="authors">
@@ -653,7 +720,7 @@
         <i class="fas fa-file-pdf"></i> arXiv
       </a>
       <a class="link-btn btn-data" href="https://huggingface.co/datasets/facebook/show3d-dataset" target="_blank">
-        <i class="fas fa-database"></i> Dataset <span style="color:var(--ink-mute);font-weight:500">(HuggingFace)</span>
+        <i class="fas fa-database"></i> Dataset <span class="hf-tag">(HuggingFace)</span>
       </a>
       <a class="link-btn btn-poster" href="SHOW3D_CVPR_Poster.pdf" target="_blank">
         <i class="fas fa-image"></i> Poster
@@ -680,26 +747,30 @@
   </div>
 </section>
 
-<!-- ═══════════════════════════════ ABSTRACT ══════════════════════════ -->
-<section class="section" id="abstract">
+<!-- ═══════════════════════════════ TL;DR ═════════════════════════════ -->
+<section class="section" id="tldr">
   <div class="section-head">
     <span class="kick-num" style="--k:var(--color-s)">01</span>
-    <h2 class="section-title">Abstract</h2>
+    <h2 class="section-title">TL;DR</h2>
   </div>
-  <p class="abstract-body">
-    Accurate 3D understanding of human hands and objects during manipulation remains a significant challenge for egocentric
-    computer vision. Existing hand–object interaction datasets are predominantly captured in controlled studio settings,
-    which limits both environmental diversity and the ability of models trained on such data to generalize to real-world
-    scenarios. To address this challenge, we introduce a novel marker-less multi-camera system that allows for nearly
-    unconstrained mobility in genuinely in-the-wild conditions, while still having the ability to generate precise 3D
-    annotations of hands and objects. The capture system consists of a lightweight, back-mounted, multi-camera rig
-    synchronized and calibrated with a user-worn VR headset. For 3D ground-truth annotation of hands and objects, we
-    develop an ego-exo tracking pipeline and rigorously evaluate its quality. Finally, we present
-    <strong>SHOW3D</strong>, the first large-scale dataset with 3D annotations that show hands interacting with objects in
-    diverse real-world environments, including outdoor settings. Our approach significantly reduces the fundamental
-    trade-off between environmental realism and accuracy of 3D annotations, which we validate with experiments on several
-    downstream tasks.
+
+  <p class="tldr-lede">
+    <strong>SHOW3D</strong> is the first large-scale dataset of people using their hands to manipulate objects
+    <em class="c-w">in the wild</em> — outdoors, on the move, across everyday environments — captured with studio-grade
+    3D ground truth: full <span class="c-h">hand meshes</span>, <span class="c-o">6DoF object poses</span>, and
+    natural-language action captions.
   </p>
+
+  <div class="tldr-callout">
+    <div class="tldr-callout-label"><i class="fas fa-robot"></i> Why it matters for robotics &amp; physical AI</div>
+    <p class="tldr-callout-body">
+      Dexterous manipulation is the central bottleneck for <strong>physical AI</strong> — the robots and embodied
+      agents that are the next frontier of the field. But nearly all hand–object data is recorded in controlled
+      studios, so policies trained on it stumble the moment they meet the real world. SHOW3D delivers realistic,
+      accurately labeled human demonstrations at scale, giving manipulation and world-model policies the
+      <strong>in-the-wild grounding</strong> they need to generalize from the lab to reality.
+    </p>
+  </div>
 </section>
 
 <!-- ══════════════════════════ CONTRIBUTIONS ══════════════════════════ -->
