@@ -158,70 +158,92 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-top: 1.9rem;
     }
     .conf-logo-card {
       position: relative;
-      width: min(520px, 100%);
-      aspect-ratio: 4.35 / 1;
-      border-radius: 12px;
+      flex: 0 1 620px;
+      width: 100%;
+      min-width: 0;
+      max-width: 620px;
+      aspect-ratio: 1070 / 275;
+      border-radius: 8px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.72);
-      box-shadow: 0 14px 34px rgba(27, 29, 33, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.38);
+      background: linear-gradient(110deg, var(--color-s), var(--color-h), var(--color-o), var(--color-w), var(--color-3d));
+      border: 1px solid rgba(27, 29, 33, 0.08);
+      box-shadow: 0 12px 30px rgba(27, 29, 33, 0.18);
       isolation: isolate;
     }
-    .conf-logo-card::before,
     .conf-logo-card::after {
       content: "";
       position: absolute;
-      inset: -42%;
-      background:
-        radial-gradient(circle at 12% 26%, var(--color-s) 0 12%, transparent 28%),
-        radial-gradient(circle at 32% 78%, var(--color-h) 0 14%, transparent 31%),
-        radial-gradient(circle at 54% 34%, var(--color-o) 0 16%, transparent 34%),
-        radial-gradient(circle at 73% 72%, var(--color-w) 0 13%, transparent 30%),
-        radial-gradient(circle at 90% 22%, var(--color-3d) 0 15%, transparent 33%),
-        linear-gradient(115deg, var(--color-s), var(--color-h), var(--color-o), var(--color-w), var(--color-3d));
-      background-size: 140% 140%;
-      animation: conf-wave 8s ease-in-out infinite alternate;
-      z-index: -2;
-    }
-    .conf-logo-card::after {
       inset: 0;
       background:
-        linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent 18% 82%, rgba(255, 255, 255, 0.18)),
-        repeating-linear-gradient(118deg, rgba(255, 255, 255, 0.13) 0 1px, transparent 1px 18px);
-      mix-blend-mode: soft-light;
-      animation: conf-sheen 5.5s ease-in-out infinite alternate;
-      z-index: -1;
+        linear-gradient(90deg, rgba(255, 255, 255, 0.12), transparent 20% 80%, rgba(255, 255, 255, 0.1)),
+        repeating-linear-gradient(112deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 22px);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .conf-color-field {
+      position: absolute;
+      inset: -55% -18%;
+      z-index: 0;
+      overflow: hidden;
+      transform: translateZ(0);
+    }
+    .conf-color-field span {
+      position: absolute;
+      width: 46%;
+      height: 74%;
+      border-radius: 45% 55% 58% 42% / 58% 44% 56% 42%;
+      filter: blur(18px);
+      opacity: 0.98;
+      will-change: transform, border-radius;
+      animation: conf-color-wave 4.8s ease-in-out infinite alternate;
+    }
+    .conf-color-s  { left: -5%; top: 12%; background: var(--color-s); animation-delay: -1.4s !important; }
+    .conf-color-h  { left: 16%; top: 42%; background: var(--color-h); animation-delay: -3.7s !important; animation-duration: 5.6s !important; }
+    .conf-color-o  { left: 38%; top: 4%; background: var(--color-o); animation-delay: -2.5s !important; animation-duration: 4.2s !important; }
+    .conf-color-w  { left: 59%; top: 40%; background: var(--color-w); animation-delay: -4.1s !important; animation-duration: 5.2s !important; }
+    .conf-color-3d { left: 80%; top: 8%; background: var(--color-3d); animation-delay: -0.8s !important; animation-duration: 4.5s !important; }
+    .conf-color-field::after {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      background: conic-gradient(from 70deg, transparent 0 8%, rgba(255, 255, 255, 0.2) 12%, transparent 23% 55%, rgba(255, 255, 255, 0.16) 64%, transparent 76%);
+      animation: conf-color-spin 7s linear infinite;
     }
     .cvpr-logo {
+      position: relative;
+      z-index: 2;
       width: 100%;
+      min-width: 0;
       height: 100%;
       display: block;
-      color: rgba(255, 255, 255, 0.94);
-      filter: drop-shadow(0 2px 5px rgba(27, 29, 33, 0.2));
+      object-fit: contain;
+      padding: clamp(0.65rem, 2.2vw, 1rem) clamp(0.8rem, 3vw, 1.35rem);
+      filter: drop-shadow(0 2px 5px rgba(27, 29, 33, 0.24));
     }
-    .cvpr-logo text {
-      fill: currentColor;
-      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', var(--sans);
-      font-weight: 800;
-      letter-spacing: 0;
-      text-transform: uppercase;
+    @keyframes conf-color-wave {
+      0% {
+        transform: translate3d(-24%, -12%, 0) scale(0.82) rotate(-12deg);
+        border-radius: 45% 55% 58% 42% / 58% 44% 56% 42%;
+      }
+      50% {
+        transform: translate3d(8%, 24%, 0) scale(1.25) rotate(14deg);
+        border-radius: 62% 38% 42% 58% / 38% 63% 37% 62%;
+      }
+      100% {
+        transform: translate3d(28%, -8%, 0) scale(0.94) rotate(-5deg);
+        border-radius: 38% 62% 64% 36% / 61% 35% 65% 39%;
+      }
     }
-    .cvpr-logo .mark-fill { fill: currentColor; }
-    @keyframes conf-wave {
-      0% { transform: translate3d(-3%, -2%, 0) rotate(0deg) scale(1.02); }
-      50% { transform: translate3d(3%, 2%, 0) rotate(3deg) scale(1.08); }
-      100% { transform: translate3d(-1%, 3%, 0) rotate(-2deg) scale(1.04); }
-    }
-    @keyframes conf-sheen {
-      0% { opacity: 0.42; transform: translateX(-2%); }
-      100% { opacity: 0.68; transform: translateX(2%); }
+    @keyframes conf-color-spin {
+      to { transform: rotate(360deg) scale(1.08); }
     }
     @media (prefers-reduced-motion: reduce) {
-      .conf-logo-card::before,
-      .conf-logo-card::after { animation: none; }
+      .conf-color-field span,
+      .conf-color-field::after { animation: none; }
     }
 
     /* ── Title ── */
@@ -804,34 +826,6 @@
 <header class="hero" id="top">
   <div class="hero-inner">
 
-    <div class="conf-badge">
-      <div class="conf-logo-card" aria-label="CVPR 2026, Denver Colorado">
-        <svg class="cvpr-logo" viewBox="0 0 1350 270" role="img" aria-labelledby="cvprLogoTitle">
-          <title id="cvprLogoTitle">CVPR 2026, Denver Colorado</title>
-          <defs>
-            <mask id="cvprMountainCutout" maskUnits="userSpaceOnUse">
-              <rect x="0" y="0" width="270" height="270" fill="black"/>
-              <circle cx="125" cy="125" r="116" fill="white"/>
-              <path d="M8 140 L86 67 L157 136 L116 175 L86 147 L35 194 Z" fill="black"/>
-              <path d="M116 175 L158 136 L229 205 L188 242 Z" fill="black"/>
-              <path d="M160 136 L202 97 L250 143 L250 196 Z" fill="black"/>
-            </mask>
-          </defs>
-          <text x="0" y="140" font-size="142">CVPR</text>
-          <text x="0" y="220" font-size="56">JUNE 3-7, 2026</text>
-
-          <g transform="translate(410 8)">
-            <rect class="mark-fill" width="270" height="270" mask="url(#cvprMountainCutout)"/>
-            <path d="M35 194 L86 147 L116 175 L65 223 Z" class="mark-fill"/>
-            <path d="M202 97 L250 143 L250 196 L202 151 L160 190 L135 166 Z" class="mark-fill"/>
-          </g>
-
-          <text x="680" y="132" font-size="124">DENVER</text>
-          <text x="680" y="228" font-size="92">COLORADO</text>
-        </svg>
-      </div>
-    </div>
-
     <h1 class="paper-title">
       <span class="title-mark">
         <span class="c-s">S</span><span class="c-h">H</span><span class="c-o">O</span><span class="c-w">W</span><span class="c-3d">3D</span>
@@ -876,6 +870,19 @@
       <a class="link-btn btn-bibtex" href="#bibtex">
         <i class="fas fa-quote-right"></i> BibTeX
       </a>
+    </div>
+
+    <div class="conf-badge">
+      <div class="conf-logo-card">
+        <div class="conf-color-field" aria-hidden="true">
+          <span class="conf-color-s"></span>
+          <span class="conf-color-h"></span>
+          <span class="conf-color-o"></span>
+          <span class="conf-color-w"></span>
+          <span class="conf-color-3d"></span>
+        </div>
+        <img class="cvpr-logo" src="figures/cvpr-denver-white-logo.png" alt="CVPR 2026, Denver Colorado">
+      </div>
     </div>
 
   </div>
