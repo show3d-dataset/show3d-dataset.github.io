@@ -158,26 +158,71 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1.6rem;
+      margin-bottom: 1.5rem;
     }
-    .conf-badge .rule {
-      height: 1px;
-      width: clamp(26px, 7vw, 60px);
+    .conf-logo-card {
+      position: relative;
+      width: min(520px, 92vw);
+      aspect-ratio: 4 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      box-shadow: 0 14px 34px rgba(27, 29, 33, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.38);
+      isolation: isolate;
     }
-    .conf-badge .rule.l { background: linear-gradient(to right, transparent, #d2d5dd); }
-    .conf-badge .rule.r { background: linear-gradient(to left,  transparent, #d2d5dd); }
-    .conf-text {
-      font-family: var(--serif);
-      font-size: clamp(1rem, 3vw, 1.18rem);
-      font-weight: 600;
-      letter-spacing: 0.36em;
+    .conf-logo-card::before,
+    .conf-logo-card::after {
+      content: "";
+      position: absolute;
+      inset: -42%;
+      background:
+        radial-gradient(circle at 12% 26%, var(--color-s) 0 12%, transparent 28%),
+        radial-gradient(circle at 32% 78%, var(--color-h) 0 14%, transparent 31%),
+        radial-gradient(circle at 54% 34%, var(--color-o) 0 16%, transparent 34%),
+        radial-gradient(circle at 73% 72%, var(--color-w) 0 13%, transparent 30%),
+        radial-gradient(circle at 90% 22%, var(--color-3d) 0 15%, transparent 33%),
+        linear-gradient(115deg, var(--color-s), var(--color-h), var(--color-o), var(--color-w), var(--color-3d));
+      background-size: 140% 140%;
+      animation: conf-wave 8s ease-in-out infinite alternate;
+      z-index: -2;
+    }
+    .conf-logo-card::after {
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.2), transparent 18% 82%, rgba(255, 255, 255, 0.18)),
+        repeating-linear-gradient(118deg, rgba(255, 255, 255, 0.13) 0 1px, transparent 1px 18px);
+      mix-blend-mode: soft-light;
+      animation: conf-sheen 5.5s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+    .cvpr-logo {
+      width: 100%;
+      height: 100%;
+      display: block;
+      color: rgba(255, 255, 255, 0.94);
+      filter: drop-shadow(0 2px 5px rgba(27, 29, 33, 0.2));
+    }
+    .cvpr-logo text {
+      fill: currentColor;
+      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', var(--sans);
+      font-weight: 800;
+      letter-spacing: 0;
       text-transform: uppercase;
-      color: var(--ink);
-      padding-left: 0.36em;   /* offset trailing letter-spacing */
-      white-space: nowrap;
     }
-    .conf-text .yr { color: var(--color-s); }
+    .cvpr-logo .mark-fill { fill: currentColor; }
+    @keyframes conf-wave {
+      0% { transform: translate3d(-3%, -2%, 0) rotate(0deg) scale(1.02); }
+      50% { transform: translate3d(3%, 2%, 0) rotate(3deg) scale(1.08); }
+      100% { transform: translate3d(-1%, 3%, 0) rotate(-2deg) scale(1.04); }
+    }
+    @keyframes conf-sheen {
+      0% { opacity: 0.42; transform: translateX(-2%); }
+      100% { opacity: 0.68; transform: translateX(2%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .conf-logo-card::before,
+      .conf-logo-card::after { animation: none; }
+    }
 
     /* ── Title ── */
     .paper-title { margin: 0 auto 1.5rem; }
@@ -760,9 +805,31 @@
   <div class="hero-inner">
 
     <div class="conf-badge">
-      <span class="rule l"></span>
-      <span class="conf-text">CVPR&nbsp;<span class="yr">2026</span></span>
-      <span class="rule r"></span>
+      <div class="conf-logo-card" aria-label="CVPR 2026, Denver Colorado">
+        <svg class="cvpr-logo" viewBox="0 0 1080 270" role="img" aria-labelledby="cvprLogoTitle">
+          <title id="cvprLogoTitle">CVPR 2026, Denver Colorado</title>
+          <defs>
+            <mask id="cvprMountainCutout" maskUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="270" height="270" fill="black"/>
+              <circle cx="125" cy="125" r="116" fill="white"/>
+              <path d="M8 140 L86 67 L157 136 L116 175 L86 147 L35 194 Z" fill="black"/>
+              <path d="M116 175 L158 136 L229 205 L188 242 Z" fill="black"/>
+              <path d="M160 136 L202 97 L250 143 L250 196 Z" fill="black"/>
+            </mask>
+          </defs>
+          <text x="0" y="140" font-size="142">CVPR</text>
+          <text x="0" y="220" font-size="56">JUNE 3-7, 2026</text>
+
+          <g transform="translate(410 8)">
+            <rect class="mark-fill" width="270" height="270" mask="url(#cvprMountainCutout)"/>
+            <path d="M35 194 L86 147 L116 175 L65 223 Z" class="mark-fill"/>
+            <path d="M202 97 L250 143 L250 196 L202 151 L160 190 L135 166 Z" class="mark-fill"/>
+          </g>
+
+          <text x="680" y="132" font-size="124">DENVER</text>
+          <text x="680" y="228" font-size="92">COLORADO</text>
+        </svg>
+      </div>
     </div>
 
     <h1 class="paper-title">
