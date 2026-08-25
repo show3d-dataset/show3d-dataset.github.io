@@ -506,6 +506,86 @@
     }
 
     /* ══════════════════════════════════════════
+       VALIDATION
+    ══════════════════════════════════════════ */
+    .validation-grid {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 1.5rem;
+      align-items: start;
+      margin: 1.4rem 0;
+    }
+    .protocol-list {
+      display: grid;
+      gap: 0.85rem;
+      margin-top: 1.2rem;
+    }
+    .protocol-item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 0.95rem 1rem 1rem;
+    }
+    .protocol-label {
+      display: flex;
+      align-items: center;
+      gap: 0.55em;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 0.42rem;
+    }
+    .protocol-copy {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      line-height: 1.58;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+    .validation-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+      margin: 1.2rem 0 0.3rem;
+    }
+    .validation-metric {
+      padding: 0.95rem 0.75rem;
+      text-align: center;
+      border-left: 1px solid var(--line-soft);
+    }
+    .validation-metric:first-child { border-left: none; }
+    .validation-number {
+      font-size: 1.55rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+    .validation-label {
+      font-size: 0.68rem;
+      color: var(--ink-mute);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+    @media (max-width: 780px) {
+      .validation-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .validation-metrics { grid-template-columns: 1fr; }
+      .validation-metric {
+        border-left: none;
+        border-top: 1px solid var(--line-soft);
+      }
+      .validation-metric:first-child { border-top: none; }
+    }
+
+    /* ══════════════════════════════════════════
        TABLES
     ══════════════════════════════════════════ */
     .table-wrap { margin: 1.2rem 0 0.4rem; }
@@ -666,6 +746,7 @@
       <a href="#dataset">Dataset</a>
       <a href="#system">System</a>
       <a href="#pipeline">Pipeline</a>
+      <a href="#validation">Validation</a>
       <a href="#experiments">Experiments</a>
     </div>
     <div class="nav-meta">
@@ -1065,10 +1146,132 @@
   </div>
 </section>
 
+<!-- ════════════════════════ GT QUALITY VALIDATION ═══════════════════ -->
+<section class="section" id="validation">
+  <div class="section-head">
+    <span class="kick-num" style="--k:var(--color-s)">06</span>
+    <h2 class="section-title">GT Quality Validation</h2>
+  </div>
+  <p class="prose lede">
+    We validate the quality of our 3D hand ground truth against two independent references: a 30-camera stationary
+    dome for controlled studio evaluation, and manual multi-view keypoint annotation for in-the-wild evaluation.
+    Across both protocols, SHOW3D achieves sub-centimeter median MPJPE, including the most challenging
+    hand-object interaction setting.
+  </p>
+
+  <div class="validation-grid">
+    <div>
+      <div class="figure-container" style="margin-top:0;">
+        <img src="figures/dome_blurred.png" alt="SHOW3D rig captured inside a multi-camera dome for validation">
+        <p class="figure-caption">
+          <strong>Dome validation.</strong>
+          We capture synchronized sequences with the mobile rig inside a high-coverage 30-camera dome, enabling direct
+          comparison between rig-derived annotations and dome-derived 3D keypoints.
+        </p>
+      </div>
+      <div class="figure-container">
+        <img src="figures/manual_annotation.png" alt="Manual hand keypoint annotations used for SHOW3D validation">
+        <p class="figure-caption">
+          <strong>Manual validation.</strong>
+          Human annotators label 2D hand keypoints across available in-the-wild views; valid labels are triangulated
+          with RANSAC to provide an independent reference.
+        </p>
+      </div>
+    </div>
+
+    <div>
+      <div class="protocol-list">
+        <div class="protocol-item">
+          <div class="protocol-label" style="color:var(--color-s)"><i class="fas fa-circle-nodes"></i> Dome</div>
+          <p class="protocol-copy">
+            Controlled in-studio validation with a high-fidelity multi-camera system. This tests whether the mobile
+            rig recovers accurate 3D hand pose when compared with dense external camera coverage.
+          </p>
+        </div>
+        <div class="protocol-item">
+          <div class="protocol-label" style="color:var(--color-w)"><i class="fas fa-pen-ruler"></i> Manual</div>
+          <p class="protocol-copy">
+            In-the-wild validation from crowd-sourced 2D keypoints. This provides a more independent stress test for
+            outdoor lighting, occlusion, and hard hand-object interaction frames.
+          </p>
+        </div>
+      </div>
+
+      <div class="validation-metrics" aria-label="GT validation summary metrics">
+        <div class="validation-metric">
+          <div class="validation-number" style="color:var(--color-s)">7.90</div>
+          <div class="validation-label">mm median MPJPE<br>Dome HOI</div>
+        </div>
+        <div class="validation-metric">
+          <div class="validation-number" style="color:var(--color-w)">6.36</div>
+          <div class="validation-label">mm median MPJPE<br>Manual HOI</div>
+        </div>
+        <div class="validation-metric">
+          <div class="validation-number" style="color:var(--color-h)">&lt; 1 cm</div>
+          <div class="validation-label">Median accuracy<br>all categories</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table class="paper-table">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Category</th>
+                <th>Median ↓</th>
+                <th>P90 ↓</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="3" style="font-weight:600; vertical-align:middle;">Dome</td>
+                <td>No interactions</td>
+                <td>6.28</td>
+                <td>7.31</td>
+              </tr>
+              <tr>
+                <td>Hand-hand interaction</td>
+                <td>7.46</td>
+                <td>8.95</td>
+              </tr>
+              <tr>
+                <td>Hand-object interaction</td>
+                <td class="best">7.90</td>
+                <td>12.53</td>
+              </tr>
+              <tr class="row-sep">
+                <td rowspan="3" style="font-weight:600; vertical-align:middle;">Manual</td>
+                <td>No interactions</td>
+                <td>5.65</td>
+                <td>12.35</td>
+              </tr>
+              <tr>
+                <td>Hand-hand interaction</td>
+                <td>6.03</td>
+                <td>14.63</td>
+              </tr>
+              <tr>
+                <td>Hand-object interaction</td>
+                <td class="best">6.36</td>
+                <td>16.48</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-caption">
+          <strong>Ground-truth hand annotation quality.</strong>
+          Median and 90th percentile per-frame MPJPE in millimeters, evaluated against Dome and Manual references.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════════════════════ EXPERIMENTS ════════════════════════════ -->
 <section class="section" id="experiments">
   <div class="section-head">
-    <span class="kick-num" style="--k:var(--color-s)">06</span>
+    <span class="kick-num" style="--k:var(--color-o)">07</span>
     <h2 class="section-title">Experiments</h2>
   </div>
 
@@ -1325,7 +1528,7 @@
 <!-- ══════════════════════════ BIBTEX ═════════════════════════════════ -->
 <section class="section" id="bibtex">
   <div class="section-head">
-    <span class="kick-num" style="--k:var(--color-3d)">07</span>
+    <span class="kick-num" style="--k:var(--color-3d)">08</span>
     <h2 class="section-title">BibTeX</h2>
   </div>
   <div class="bibtex-shell">
